@@ -29,7 +29,7 @@ Tratar cada módulo por separado (en vez de todos a la vez) garantiza una cobert
 
 ## 3. Unión
 
-En el mismo `borrador.json`, redacta "Lo esencial", "Macro global", "Concepto de la semana", "Perspectiva de largo plazo" y "Agenda de la semana siguiente" — mirando el conjunto de lo que escribiste módulo a módulo. Elimina duplicados entre módulos (la misma noticia no debería aparecer dos veces).
+En el mismo `borrador.json`, redacta "Titular", "Lo esencial", "Macro global", "Concepto de la semana" y "Perspectiva de largo plazo" — mirando el conjunto de lo que escribiste módulo a módulo. Elimina duplicados entre módulos (la misma noticia no debería aparecer dos veces). El titular recoge la noticia más remarcable de toda la semana (prompts/redactor.md).
 
 ## 4. Verificación en frío
 
@@ -51,7 +51,7 @@ python scripts/validate.py --semana {semana}
 python scripts/render.py --semana {semana}
 ```
 
-Produce `data/{semana}/informe.md`.
+Produce `data/{semana}/informe.md` (el email público) y `data/{semana}/transparencia.md` ("cómo se hizo este informe", de uso interno — **no** se adjunta ni se menciona al crear el borrador).
 
 ## 7. Borrador en Buttondown
 

@@ -2,7 +2,24 @@
 
 from __future__ import annotations
 
+import datetime
+
 from briefing.modelos import MODULOS_IDS, todas_las_noticias
+
+MESES_ES = {
+    1: "enero",
+    2: "febrero",
+    3: "marzo",
+    4: "abril",
+    5: "mayo",
+    6: "junio",
+    7: "julio",
+    8: "agosto",
+    9: "septiembre",
+    10: "octubre",
+    11: "noviembre",
+    12: "diciembre",
+}
 
 AVISO_LEGAL = "Contenido informativo. No es asesoramiento financiero."
 
@@ -112,14 +129,6 @@ def renderizar_perspectiva(informe: dict) -> str:
     )
 
 
-def renderizar_agenda(informe: dict) -> str:
-    filas = ["| Fecha | Evento | Por qué importa |", "| :-- | :-- | :-- |"]
-    for evento in informe["agenda"]:
-        filas.append(f"| {evento['fecha']} | {evento['evento']} | {evento['por_que_importa']} |")
-    tabla = "\n".join(filas)
-    return f"## Agenda de la semana siguiente\n\n{tabla}\n"
-
-
 def renderizar_para_profundizar(informe: dict) -> str:
     bloques = []
     for id_modulo in ("macro_global", *MODULOS_IDS):
@@ -149,9 +158,31 @@ def renderizar_indice(modulos_cfg: list[dict]) -> str:
     return f"**En este informe:**\n\n{lineas}\n"
 
 
+def _formatear_fecha_es(fecha_iso: str) -> tuple[int, str, int]:
+    fecha = datetime.date.fromisoformat(fecha_iso)
+    return fecha.day, MESES_ES[fecha.month], fecha.year
+
+
+def _formatear_rango_fechas(inicio: str, fin: str) -> str:
+    dia_i, mes_i, anio_i = _formatear_fecha_es(inicio)
+    dia_f, mes_f, anio_f = _formatear_fecha_es(fin)
+    if (mes_i, anio_i) == (mes_f, anio_f):
+        return f"{dia_i} al {dia_f} de {mes_f} de {anio_f}"
+    if anio_i == anio_f:
+        return f"{dia_i} de {mes_i} al {dia_f} de {mes_f} de {anio_f}"
+    return f"{dia_i} de {mes_i} de {anio_i} al {dia_f} de {mes_f} de {anio_f}"
+
+
 def renderizar_titulo(informe: dict, nombre_newsletter: str) -> str:
-    periodo = informe["periodo"]
-    return f"# {nombre_newsletter} · Semana del {periodo['inicio']} al {periodo['fin']}\n"
+    """Nombre de la newsletter + el titular llamativo de la semana como
+    subtítulo, con la fecha en una línea pequeña debajo (sección 5:
+    "título llamativo", no una fecha mecánica)."""
+    rango = _formatear_rango_fechas(informe["periodo"]["inicio"], informe["periodo"]["fin"])
+    return (
+        f"# {nombre_newsletter}\n\n"
+        f"## {informe['titular']['texto']}\n\n"
+        f"_Semana del {rango}_\n"
+    )
 
 
 def renderizar_contexto_ia(
@@ -205,7 +236,10 @@ def renderizar_contexto_ia(
 def renderizar_transparencia(informe: dict) -> str:
     """Versión breve de "cómo se hizo este informe" (sección 13).
 
-    El detalle completo (cada cambio, cada fuente descartada con su
+    De uso interno: scripts/render.py escribe esto en transparencia.md,
+    nunca en informe.md — mostrarlo a todos los suscriptores resta
+    fiabilidad percibida en vez de sumarla (decisión de producto, sección
+    5). El detalle completo (cada cambio, cada fuente descartada con su
     motivo exacto) queda en log.json; aquí solo van los números.
     """
     conteo_niveles = {1: 0, 2: 0, 3: 0}
@@ -250,7 +284,13 @@ def renderizar_informe(
     modulos_cfg: list[dict],
     nombre_newsletter: str,
 ) -> str:
-    """Ensambla el Markdown completo del email, en el orden de la sección 5."""
+    """Ensambla el Markdown **público** del email, en el orden de la sección 5.
+
+    No incluye "Cómo se hizo este informe": esa sección es de uso interno
+    (decisión de producto, sección 5) y la escribe por separado
+    renderizar_transparencia(), en transparencia.md — nunca en el email
+    que reciben los suscriptores.
+    """
     secciones = [
         renderizar_titulo(informe, nombre_newsletter),
         renderizar_indice(modulos_cfg),
@@ -260,10 +300,8 @@ def renderizar_informe(
         renderizar_modulos(informe, modulos_cfg),
         renderizar_concepto_semana(informe),
         renderizar_perspectiva(informe),
-        renderizar_agenda(informe),
         renderizar_para_profundizar(informe),
         renderizar_contexto_ia(informe, datos),
-        renderizar_transparencia(informe),
         renderizar_aviso_legal(),
     ]
     return "\n\n".join(secciones) + "\n"

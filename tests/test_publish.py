@@ -9,8 +9,8 @@ from .test_schema import _informe_minimo_valido
 
 def test_construir_asunto() -> None:
     informe = _informe_minimo_valido()
-    asunto = publish.construir_asunto(informe, "Swans & Unicorns")
-    assert asunto == "Swans & Unicorns · Semana del 2026-10-05 al 2026-10-11"
+    asunto = publish.construir_asunto(informe, "The Macrochip")
+    assert asunto == f"The Macrochip: {informe['titular']['texto']}"
 
 
 def _preparar_semana(tmp_path: Path) -> Path:
@@ -38,7 +38,8 @@ def test_main_crea_el_borrador_y_devuelve_0(
 
     assert codigo == 0
     asunto, cuerpo = llamadas[0]
-    assert asunto == "Swans & Unicorns · Semana del 2026-10-05 al 2026-10-11"
+    informe = _informe_minimo_valido()
+    assert asunto == f"The Macrochip: {informe['titular']['texto']}"
     assert cuerpo == "# Hola\n\nCuerpo del email."
 
 

@@ -40,4 +40,10 @@ Antes de asignar un `hilo_id` nuevo, revisa los `hilo_id` usados en las últimas
 
 El orden de los módulos y su límite de palabras están en `config/modulos.yaml`. Si un módulo no tiene novedades relevantes, escribe su entrada con `"sin_novedades": true` y sin noticias — no rellenes para llegar al límite.
 
+## Titular
+
+Al terminar todos los módulos, elige la noticia más remarcable del conjunto (de cualquier módulo, o de "Macro global" — no tiene por qué ser la primera de "Lo esencial") y escribe un `titular` con ella: una frase corta, tipo prensa, que dé ganas de abrir el email. Apunta su `noticia_id`.
+
+"Llamativo" no es "exagerado": sigue valiendo la prohibición de sensacionalismo de `prompts/estilo.md`. Un titular puede ser interesante siendo exacto.
+
 Sigue además `prompts/estilo.md`. Escribe la salida en el formato de `schema/informe.schema.json`.

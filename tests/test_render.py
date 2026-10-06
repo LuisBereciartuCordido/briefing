@@ -99,12 +99,6 @@ def test_renderizar_perspectiva_con_listas_vacias() -> None:
     assert salida.count("(nada reseñable)") == 2
 
 
-def test_renderizar_agenda() -> None:
-    informe = _informe_minimo_valido()
-    salida = render.renderizar_agenda(informe)
-    assert informe["agenda"][0]["evento"] in salida
-
-
 def test_renderizar_para_profundizar_omite_modulos_sin_novedades() -> None:
     informe = _informe_minimo_valido()  # todos los módulos están sin_novedades=True
     salida = render.renderizar_para_profundizar(informe)
@@ -120,10 +114,28 @@ def test_renderizar_indice_no_promete_enlaces_de_ancla() -> None:
 
 def test_renderizar_titulo() -> None:
     informe = _informe_minimo_valido()
-    salida = render.renderizar_titulo(informe, "Swans & Unicorns")
-    assert "Swans & Unicorns" in salida
-    assert informe["periodo"]["inicio"] in salida
-    assert informe["periodo"]["fin"] in salida
+    salida = render.renderizar_titulo(informe, "The Macrochip")
+    assert "The Macrochip" in salida
+    assert informe["titular"]["texto"] in salida
+    assert "5 al 11 de octubre de 2026" in salida
+
+
+def test_formatear_rango_fechas_mismo_mes() -> None:
+    assert render._formatear_rango_fechas("2026-10-05", "2026-10-11") == "5 al 11 de octubre de 2026"
+
+
+def test_formatear_rango_fechas_cruza_de_mes() -> None:
+    assert (
+        render._formatear_rango_fechas("2026-10-29", "2026-11-04")
+        == "29 de octubre al 4 de noviembre de 2026"
+    )
+
+
+def test_formatear_rango_fechas_cruza_de_anio() -> None:
+    assert (
+        render._formatear_rango_fechas("2026-12-28", "2027-01-03")
+        == "28 de diciembre de 2026 al 3 de enero de 2027"
+    )
 
 
 def test_renderizar_contexto_ia_incluye_datos_y_noticias() -> None:
@@ -184,26 +196,37 @@ def test_renderizar_informe_junta_todas_las_secciones_en_orden() -> None:
         datos_semana_anterior=None,
         mercados_cfg=MERCADOS_CFG,
         modulos_cfg=MODULOS_CFG,
-        nombre_newsletter="Swans & Unicorns",
+        nombre_newsletter="The Macrochip",
     )
 
     for titulo in (
-        "Swans & Unicorns",
+        "The Macrochip",
+        informe["titular"]["texto"],
         "Lo esencial",
         "Mercados esta semana",
         "Macro global",
         "Concepto de la semana",
         "Perspectiva de largo plazo",
-        "Agenda de la semana siguiente",
         "Para profundizar",
         "Paquete de contexto para IA",
-        "Cómo se hizo este informe",
         "No es asesoramiento financiero",
     ):
         assert titulo in salida
 
     assert salida.index("Lo esencial") < salida.index("Mercados esta semana")
     assert salida.index("Para profundizar") < salida.index("Paquete de contexto para IA")
-    assert salida.index("Cómo se hizo este informe") < salida.index(
-        "No es asesoramiento financiero"
+
+
+def test_renderizar_informe_no_incluye_la_transparencia() -> None:
+    # Decisión de producto (sección 5): "cómo se hizo este informe" no va
+    # en el email público, solo en transparencia.md (de uso interno).
+    informe = _informe_minimo_valido()
+    salida = render.renderizar_informe(
+        informe,
+        datos={},
+        datos_semana_anterior=None,
+        mercados_cfg=MERCADOS_CFG,
+        modulos_cfg=MODULOS_CFG,
+        nombre_newsletter="The Macrochip",
     )
+    assert "Cómo se hizo este informe" not in salida

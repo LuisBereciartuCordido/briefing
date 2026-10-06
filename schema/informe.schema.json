@@ -8,12 +8,12 @@
   "required": [
     "semana",
     "periodo",
+    "titular",
     "lo_esencial",
     "macro_global",
     "modulos",
     "concepto_semana",
     "perspectiva_largo_plazo",
-    "agenda",
     "fuentes_descartadas",
     "cambios_verificador"
   ],
@@ -24,6 +24,23 @@
       "description": "Semana ISO, formato AAAA-Sww."
     },
     "periodo": { "$ref": "#/$defs/periodo" },
+    "titular": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["texto", "noticia_id"],
+      "properties": {
+        "texto": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Frase llamativa (sin sensacionalismo) que recoge la noticia más remarcable de la semana. Va como subtítulo bajo el nombre de la newsletter."
+        },
+        "noticia_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "id de la noticia (de cualquier módulo o de macro_global) a la que se refiere el titular."
+        }
+      }
+    },
     "lo_esencial": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 },
@@ -75,19 +92,6 @@
         "ruido": { "type": "array", "items": { "type": "string", "minLength": 1 } }
       }
     },
-    "agenda": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["fecha", "evento", "por_que_importa"],
-        "properties": {
-          "fecha": { "type": "string", "format": "date" },
-          "evento": { "type": "string", "minLength": 1 },
-          "por_que_importa": { "type": "string", "minLength": 1 }
-        }
-      }
-    },
     "fuentes_descartadas": {
       "type": "array",
       "items": {
@@ -136,6 +140,17 @@
         "noticias": {
           "type": "array",
           "items": { "$ref": "#/$defs/noticia" }
+        }
+      },
+      "if": {
+        "properties": { "sin_novedades": { "const": false } }
+      },
+      "then": {
+        "properties": {
+          "noticias": {
+            "minItems": 1,
+            "description": "Si sin_novedades es false tiene que haber al menos una noticia: de lo contrario render.py produciría una sección vacía sin avisar (hallazgo real de /code-review)."
+          }
         }
       }
     },

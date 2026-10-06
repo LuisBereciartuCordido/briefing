@@ -1,6 +1,6 @@
 # Ajustes generales que no encajan en fuentes/módulos/mercados.
 #
-# nombre_newsletter se usa en el título de informe.md (render.py) y, más
-# adelante, en el asunto del borrador de Buttondown (publish.py, sección
-# 8.7 de CLAUDE.md: "{NOMBRE} · Semana del {inicio} al {fin}").
-nombre_newsletter: "Swans & Unicorns"
+# nombre_newsletter se usa en el título de informe.md (render.py) y en el
+# asunto del borrador de Buttondown (publish.py, sección 8.7 de
+# CLAUDE.md: "{NOMBRE}: {titular}").
+nombre_newsletter: "The Macrochip"
