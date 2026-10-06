@@ -312,5 +312,5 @@ Tengo poca experiencia con git. **Yo hago todos los commits, el push y los Pull 
 
 ## Valores pendientes
 
-- `{NOMBRE}`: **"Brújula Semanal"** — una brújula orienta pero no dice a dónde ir, igual que este informe: da contexto, nunca consejo de inversión.
+- `{NOMBRE}`: **"Swans & Unicorns"**.
 - Secrets necesarios: `BUTTONDOWN_API_KEY` y `FRED_API_KEY`. En el *environment* de la Routine (plan Pro/Max), guárdalos como **API credentials** en vez de variables de entorno planas, para que no sean visibles dentro de la sesión (ver Fase 0).
