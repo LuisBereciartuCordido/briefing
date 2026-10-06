@@ -9,6 +9,7 @@ testear y de reutilizar.
 
 from __future__ import annotations
 
+import datetime
 import re
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
@@ -45,6 +46,21 @@ def validar_confianza_y_fuentes(informe: dict) -> list[str]:
                 f"ni 2 fuentes de dominios distintos ni ninguna de nivel 1"
             )
     return errores
+
+
+def validar_titular(informe: dict) -> list[str]:
+    """titular.noticia_id debe corresponder a una noticia real del informe.
+
+    Sin esta comprobación, un id mal escrito o que quedó huérfano tras
+    deduplicar en la "Unión" (sección 8) pasaría el esquema sin más —
+    noticia_id es solo una cadena, el esquema no sabe qué ids existen
+    (hallazgo real de /code-review).
+    """
+    ids_existentes = {n["id"] for _, n in todas_las_noticias(informe)}
+    noticia_id = informe["titular"]["noticia_id"]
+    if noticia_id not in ids_existentes:
+        return [f"titular.noticia_id ('{noticia_id}') no corresponde a ninguna noticia del informe"]
+    return []
 
 
 def _parsear_numero(texto: str) -> float:
@@ -109,19 +125,30 @@ def validar_cifras(informe: dict, datos: dict) -> list[str]:
     return errores
 
 
-def validar_fechas_fuente(informe: dict) -> list[str]:
-    """Una fuente fuera del periodo debe estar marcada como contexto histórico."""
-    inicio = informe["periodo"]["inicio"]
-    fin = informe["periodo"]["fin"]
+def validar_fechas_fuente(informe: dict, antiguedad_maxima_dias: int = 10) -> list[str]:
+    """Una fuente más antigua que `antiguedad_maxima_dias` (prompts/redactor.md,
+    config/fuentes.yaml) debe estar marcada como contexto histórico.
+
+    No exige que la fuente caiga dentro del periodo exacto del informe: una
+    noticia del lunes puede perfectamente citar un artículo del jueves
+    anterior, que sigue siendo "de esta semana" a efectos periodísticos.
+    Lo que no se permite sin marcar es una fuente más vieja que el límite
+    de antigüedad, ni una fuente con fecha futura respecto al cierre del
+    periodo (eso sería sospechoso, no "reciente").
+    """
+    fin = datetime.date.fromisoformat(informe["periodo"]["fin"])
+    limite_antiguedad = fin - datetime.timedelta(days=antiguedad_maxima_dias)
     errores = []
     for ubicacion, noticia in todas_las_noticias(informe):
         for fuente in noticia["fuentes"]:
             if fuente.get("contexto_historico", False):
                 continue
-            if not (inicio <= fuente["fecha"] <= fin):
+            fecha_fuente = datetime.date.fromisoformat(fuente["fecha"])
+            if not (limite_antiguedad <= fecha_fuente <= fin):
                 errores.append(
-                    f"[{ubicacion}] {noticia['id']}: fuente del {fuente['fecha']} fuera "
-                    f"del periodo {inicio}/{fin} y sin marcar como contexto histórico"
+                    f"[{ubicacion}] {noticia['id']}: fuente del {fuente['fecha']} tiene más "
+                    f"de {antiguedad_maxima_dias} días de antigüedad respecto al "
+                    f"{fin.isoformat()} (o es posterior), y no está marcada como contexto histórico"
                 )
     return errores
 

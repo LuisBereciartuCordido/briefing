@@ -54,6 +54,31 @@ def test_parsear_numero_sin_numero_lanza_value_error() -> None:
         _parsear_numero("sin ningún número aquí")
 
 
+# --- validar_titular --------------------------------------------------------
+
+
+def test_titular_que_referencia_una_noticia_real_no_da_error() -> None:
+    informe = _informe_con(macro_global=[_noticia(id_="2026-S41-macro-01")])
+    informe["titular"] = {"texto": "Algo pasó", "noticia_id": "2026-S41-macro-01"}
+    assert validacion.validar_titular(informe) == []
+
+
+def test_titular_con_id_inexistente_da_error() -> None:
+    informe = _informe_con(macro_global=[_noticia(id_="2026-S41-macro-01")])
+    informe["titular"] = {"texto": "Algo pasó", "noticia_id": "no-existe"}
+    assert len(validacion.validar_titular(informe)) == 1
+
+
+def test_titular_puede_referenciar_una_noticia_de_un_modulo() -> None:
+    informe = _informe_con(macro_global=[])
+    informe["modulos"]["eeuu"] = {
+        "sin_novedades": False,
+        "noticias": [_noticia(id_="2026-S41-eeuu-01")],
+    }
+    informe["titular"] = {"texto": "Algo pasó", "noticia_id": "2026-S41-eeuu-01"}
+    assert validacion.validar_titular(informe) == []
+
+
 # --- validar_confianza_y_fuentes ------------------------------------------
 
 
@@ -142,16 +167,37 @@ def test_fuente_dentro_del_periodo_no_da_error() -> None:
     assert validacion.validar_fechas_fuente(informe) == []
 
 
-def test_fuente_fuera_del_periodo_sin_marcar_da_error() -> None:
+def test_fuente_antes_del_periodo_pero_reciente_no_da_error() -> None:
+    # El periodo del informe mínimo es 2026-10-05 a 2026-10-11. Una fuente
+    # del 2026-10-02 es anterior al inicio del periodo, pero solo tiene 9
+    # días de antigüedad respecto al cierre (10-11) — dentro del límite de
+    # 10 días de prompts/redactor.md, así que no debería bloquear. Este es
+    # justo el caso real que encontró la prueba en local de la sección 15.4.
+    informe = _informe_con(macro_global=[_noticia(fuentes=[_fuente(fecha="2026-10-02")])])
+    assert validacion.validar_fechas_fuente(informe) == []
+
+
+def test_fuente_demasiado_antigua_sin_marcar_da_error() -> None:
     informe = _informe_con(macro_global=[_noticia(fuentes=[_fuente(fecha="2026-01-01")])])
     assert len(validacion.validar_fechas_fuente(informe)) == 1
 
 
-def test_fuente_fuera_del_periodo_marcada_como_historica_no_da_error() -> None:
+def test_fuente_demasiado_antigua_marcada_como_historica_no_da_error() -> None:
     fuente = _fuente(fecha="2026-01-01")
     fuente["contexto_historico"] = True
     informe = _informe_con(macro_global=[_noticia(fuentes=[fuente])])
     assert validacion.validar_fechas_fuente(informe) == []
+
+
+def test_fuente_con_fecha_futura_da_error() -> None:
+    informe = _informe_con(macro_global=[_noticia(fuentes=[_fuente(fecha="2026-10-12")])])
+    assert len(validacion.validar_fechas_fuente(informe)) == 1
+
+
+def test_antiguedad_maxima_dias_es_configurable() -> None:
+    informe = _informe_con(macro_global=[_noticia(fuentes=[_fuente(fecha="2026-10-02")])])
+    # Con un límite de solo 3 días, esa misma fuente del 10-02 ya no entra.
+    assert len(validacion.validar_fechas_fuente(informe, antiguedad_maxima_dias=3)) == 1
 
 
 # --- validar_palabras_prohibidas --------------------------------------------

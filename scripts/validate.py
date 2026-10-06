@@ -48,6 +48,7 @@ def validar_informe(
     esquema: dict,
     palabras: dict[str, list[str]],
     modulos_cfg: list[dict],
+    antiguedad_maxima_dias: int = 10,
     comprobar_enlaces: bool = True,
 ) -> ResultadoValidacion:
     """Corre todas las comprobaciones de la sección 12 sobre un informe ya cargado."""
@@ -61,9 +62,12 @@ def validar_informe(
         # que no aportan nada nuevo.
         return resultado
 
+    resultado.errores.extend(validacion.validar_titular(informe))
     resultado.errores.extend(validacion.validar_confianza_y_fuentes(informe))
     resultado.errores.extend(validacion.validar_cifras(informe, datos))
-    resultado.errores.extend(validacion.validar_fechas_fuente(informe))
+    resultado.errores.extend(
+        validacion.validar_fechas_fuente(informe, antiguedad_maxima_dias)
+    )
     resultado.errores.extend(validacion.validar_palabras_prohibidas(informe, palabras))
 
     resultado.avisos.extend(validacion.avisos_limite_palabras(informe, modulos_cfg))
@@ -103,12 +107,14 @@ def main(argv: list[str] | None = None) -> int:
     esquema = json.loads(SCHEMA_PATH.read_text())
     palabras = yaml.safe_load((CONFIG_DIR / "validacion.yaml").read_text())
     modulos_cfg = yaml.safe_load((CONFIG_DIR / "modulos.yaml").read_text())
+    fuentes_cfg = yaml.safe_load((CONFIG_DIR / "fuentes.yaml").read_text())
 
     resultado = validar_informe(
         informe,
         datos,
         esquema=esquema,
         palabras=palabras,
+        antiguedad_maxima_dias=fuentes_cfg["antiguedad_maxima_dias"],
         modulos_cfg=modulos_cfg,
         comprobar_enlaces=not args.sin_comprobar_enlaces,
     )
