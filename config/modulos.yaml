@@ -1,0 +1,25 @@
+# Módulos del cuerpo del informe, en el orden en que aparecen en el email
+# (sección 5 de CLAUDE.md). El id debe coincidir exactamente con las claves
+# de "modulos" en schema/informe.schema.json y con MODULOS_IDS en
+# src/briefing/modelos.py.
+- id: eeuu
+  titulo: "EE. UU."
+  limite_palabras: 110
+- id: europa
+  titulo: "Europa"
+  limite_palabras: 110
+- id: asia_china
+  titulo: "Asia y China"
+  limite_palabras: 110
+- id: emergentes
+  titulo: "Emergentes"
+  limite_palabras: 110
+- id: energia_materias_primas
+  titulo: "Energía y materias primas"
+  limite_palabras: 110
+- id: tecnologia_ia
+  titulo: "Tecnología e IA"
+  limite_palabras: 110
+- id: geopolitica_riesgos
+  titulo: "Geopolítica y riesgos"
+  limite_palabras: 110

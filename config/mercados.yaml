@@ -1,0 +1,32 @@
+# Instrumentos de la tabla de mercados semanal (sección 5 de CLAUDE.md),
+# en el orden en que se muestran en el email.
+#
+# El id es la clave que fetch_data.py usará en datos.json y render.py
+# usará para pintar la tabla. La fuente concreta de cada instrumento
+# (API, ticker, y el proxy/respaldo si no hay fuente oficial) se decide
+# y documenta en la rama feat/fetch-data — aquí solo se define qué se
+# muestra y en qué unidad.
+- id: sp500
+  nombre: "S&P 500"
+  unidad: puntos
+- id: msci_world
+  nombre: "MSCI World"
+  unidad: puntos
+- id: msci_em
+  nombre: "MSCI Emerging Markets"
+  unidad: puntos
+- id: msci_europe
+  nombre: "MSCI Europe"
+  unidad: puntos
+- id: nikkei225
+  nombre: "Nikkei 225"
+  unidad: puntos
+- id: oro
+  nombre: "Oro"
+  unidad: "USD/onza"
+- id: brent
+  nombre: "Brent"
+  unidad: "USD/barril"
+- id: eurusd
+  nombre: "EUR/USD"
+  unidad: "USD por EUR"
