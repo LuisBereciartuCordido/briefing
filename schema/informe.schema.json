@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://briefing.local/schema/informe.schema.json",
+  "title": "Informe semanal",
+  "description": "Salida validada del verificador (informe.json). Todo el email, el paquete de contexto para IA y la transparencia se derivan de este documento.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "semana",
+    "periodo",
+    "lo_esencial",
+    "macro_global",
+    "modulos",
+    "concepto_semana",
+    "perspectiva_largo_plazo",
+    "agenda",
+    "fuentes_descartadas",
+    "cambios_verificador"
+  ],
+  "properties": {
+    "semana": {
+      "type": "string",
+      "pattern": "^\\d{4}-S\\d{2}$",
+      "description": "Semana ISO, formato AAAA-Sww."
+    },
+    "periodo": { "$ref": "#/$defs/periodo" },
+    "lo_esencial": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "maxItems": 5
+    },
+    "macro_global": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/noticia" }
+    },
+    "modulos": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eeuu",
+        "europa",
+        "asia_china",
+        "emergentes",
+        "energia_materias_primas",
+        "tecnologia_ia",
+        "geopolitica_riesgos"
+      ],
+      "properties": {
+        "eeuu": { "$ref": "#/$defs/modulo" },
+        "europa": { "$ref": "#/$defs/modulo" },
+        "asia_china": { "$ref": "#/$defs/modulo" },
+        "emergentes": { "$ref": "#/$defs/modulo" },
+        "energia_materias_primas": { "$ref": "#/$defs/modulo" },
+        "tecnologia_ia": { "$ref": "#/$defs/modulo" },
+        "geopolitica_riesgos": { "$ref": "#/$defs/modulo" }
+      }
+    },
+    "concepto_semana": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "titulo", "texto"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+        "titulo": { "type": "string", "minLength": 1 },
+        "texto": { "type": "string", "minLength": 1 }
+      }
+    },
+    "perspectiva_largo_plazo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["estructural", "ruido"],
+      "properties": {
+        "estructural": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "ruido": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "agenda": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fecha", "evento", "por_que_importa"],
+        "properties": {
+          "fecha": { "type": "string", "format": "date" },
+          "evento": { "type": "string", "minLength": 1 },
+          "por_que_importa": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "fuentes_descartadas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["url", "motivo"],
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "motivo": {
+            "type": "string",
+            "enum": ["antigua", "nivel 3", "contradictoria", "paywall", "otro"]
+          }
+        }
+      }
+    },
+    "cambios_verificador": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["noticia_id", "cambio", "motivo"],
+        "properties": {
+          "noticia_id": { "type": "string", "minLength": 1 },
+          "cambio": { "type": "string", "minLength": 1 },
+          "motivo": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "periodo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inicio", "fin"],
+      "properties": {
+        "inicio": { "type": "string", "format": "date" },
+        "fin": { "type": "string", "format": "date" }
+      }
+    },
+    "modulo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sin_novedades", "noticias"],
+      "properties": {
+        "sin_novedades": { "type": "boolean" },
+        "noticias": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/noticia" }
+        }
+      }
+    },
+    "noticia": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "hilo_id",
+        "titulo",
+        "texto",
+        "por_que_importa",
+        "confianza",
+        "relevancia_espana_ue",
+        "fuentes"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "hilo_id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+        "titulo": { "type": "string", "minLength": 1 },
+        "texto": { "type": "string", "minLength": 1 },
+        "por_que_importa": { "type": "string", "minLength": 1 },
+        "confianza": {
+          "type": "string",
+          "enum": ["confirmado", "una_fuente", "interpretacion"]
+        },
+        "relevancia_espana_ue": {
+          "type": "string",
+          "enum": ["alta", "media", "baja"]
+        },
+        "fuentes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/fuente" },
+          "minItems": 1
+        },
+        "cifras": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/cifra" },
+          "default": []
+        }
+      }
+    },
+    "fuente": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "medio", "nivel", "fecha", "idioma"],
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "medio": { "type": "string", "minLength": 1 },
+        "nivel": { "type": "integer", "enum": [1, 2, 3] },
+        "fecha": { "type": "string", "format": "date" },
+        "idioma": { "type": "string", "minLength": 2, "maxLength": 5 }
+      }
+    },
+    "cifra": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valor", "ref_datos"],
+      "properties": {
+        "valor": { "type": "string", "minLength": 1 },
+        "ref_datos": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+# Fuentes y dominios permitidos para la investigación del redactor
+# (prompts/redactor.md) y para las comprobaciones de validate.py.
+#
+# Niveles de confianza (mismo criterio que prompts/redactor.md):
+#   1 = primarias: bancos centrales, organismos internacionales, estadística oficial.
+#   2 = agencias y prensa económica reconocida.
+#   3 = opinión y análisis. Solo como contexto, siempre confianza = interpretacion.
+#
+# "similares" de la spec original: añade aquí cualquier medio que cumpla el
+# mismo nivel de rigor; no hace falta tocar código para ampliar la lista.
+niveles:
+  1:
+    descripcion: "Primarias: bancos centrales, organismos internacionales, estadística oficial."
+    dominios:
+      - ecb.europa.eu
+      - federalreserve.gov
+      - bankofjapan.or.jp
+      - pbc.gov.cn
+      - imf.org
+      - bis.org
+      - oecd.org
+      - ec.europa.eu
+      - ine.es
+      - bls.gov
+      - bea.gov
+      - home.treasury.gov
+
+  2:
+    descripcion: "Agencias y prensa económica reconocida."
+    dominios:
+      - reuters.com
+      - bloomberg.com
+      - ft.com
+      - economist.com
+      - wsj.com
+      - asia.nikkei.com
+      - caixinglobal.com
+      - expansion.com
+      - cincodias.elpais.com
+
+  3:
+    descripcion: "Opinión y análisis. Solo como contexto, confianza = interpretacion."
+    dominios:
+      - project-syndicate.org
+      - voxeu.org
+
+# Feeds RSS para el Plan B (redacción por API con filtrado previo de RSS,
+# sección 2.4 de CLAUDE.md). El flujo actual (Routine + WebSearch) no los
+# usa todavía — se deja la sección preparada y vacía para no inventar
+# URLs de feeds sin verificar antes de que haga falta.
+feeds_rss_plan_b: []
+
+# Artículos más antiguos que esto se ignoran salvo que se declaren
+# explícitamente como contexto histórico (prompts/redactor.md).
+antiguedad_maxima_dias: 10
