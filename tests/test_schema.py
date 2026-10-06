@@ -1,0 +1,97 @@
+import json
+from pathlib import Path
+
+import jsonschema
+import pytest
+
+SCHEMA_PATH = Path(__file__).parent.parent / "schema" / "informe.schema.json"
+
+
+@pytest.fixture()
+def schema() -> dict:
+    return json.loads(SCHEMA_PATH.read_text())
+
+
+def _modulo_vacio() -> dict:
+    return {"sin_novedades": True, "noticias": []}
+
+
+def _informe_minimo_valido() -> dict:
+    return {
+        "semana": "2026-S41",
+        "periodo": {"inicio": "2026-10-05", "fin": "2026-10-11"},
+        "lo_esencial": ["El BCE mantiene los tipos sin cambios."],
+        "macro_global": [
+            {
+                "id": "2026-S41-macro-01",
+                "hilo_id": "bce-tipos-2026",
+                "titulo": "El BCE mantiene los tipos",
+                "texto": "El Banco Central Europeo no movió los tipos de interés.",
+                "por_que_importa": "Afecta a las hipotecas variables.",
+                "confianza": "confirmado",
+                "relevancia_espana_ue": "alta",
+                "fuentes": [
+                    {
+                        "url": "https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp261005.es.html",
+                        "medio": "BCE",
+                        "nivel": 1,
+                        "fecha": "2026-10-05",
+                        "idioma": "es",
+                    }
+                ],
+                "cifras": [],
+            }
+        ],
+        "modulos": {
+            "eeuu": _modulo_vacio(),
+            "europa": _modulo_vacio(),
+            "asia_china": _modulo_vacio(),
+            "emergentes": _modulo_vacio(),
+            "energia_materias_primas": _modulo_vacio(),
+            "tecnologia_ia": _modulo_vacio(),
+            "geopolitica_riesgos": _modulo_vacio(),
+        },
+        "concepto_semana": {
+            "id": "tipos-de-interes",
+            "titulo": "¿Qué son los tipos de interés?",
+            "texto": "El precio del dinero, fijado por los bancos centrales.",
+        },
+        "perspectiva_largo_plazo": {
+            "estructural": ["La política monetaria sigue restrictiva."],
+            "ruido": [],
+        },
+        "agenda": [
+            {
+                "fecha": "2026-10-12",
+                "evento": "Reunión de la Fed",
+                "por_que_importa": "Puede mover los tipos en EE. UU.",
+            }
+        ],
+        "fuentes_descartadas": [],
+        "cambios_verificador": [],
+    }
+
+
+def test_informe_minimo_valido_pasa_el_esquema(schema: dict) -> None:
+    jsonschema.validate(_informe_minimo_valido(), schema)
+
+
+def test_falta_un_modulo_obligatorio_falla(schema: dict) -> None:
+    informe = _informe_minimo_valido()
+    del informe["modulos"]["geopolitica_riesgos"]
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(informe, schema)
+
+
+def test_confianza_con_valor_no_permitido_falla(schema: dict) -> None:
+    informe = _informe_minimo_valido()
+    informe["macro_global"][0]["confianza"] = "muy_segura"
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(informe, schema)
+
+
+def test_noticia_sin_fuentes_falla(schema: dict) -> None:
+    informe = _informe_minimo_valido()
+    informe["macro_global"][0]["fuentes"] = []
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(informe, schema)
