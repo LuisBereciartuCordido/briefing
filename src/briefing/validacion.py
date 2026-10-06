@@ -26,7 +26,7 @@ class ResultadoValidacion:
         return not self.errores
 
 
-def _todas_las_noticias(informe: dict) -> list[tuple[str, dict]]:
+def todas_las_noticias(informe: dict) -> list[tuple[str, dict]]:
     """[(ubicacion, noticia), ...] de todo el informe, para no repetir el recorrido."""
     noticias = [("macro_global", n) for n in informe.get("macro_global", [])]
     for id_modulo, modulo in informe.get("modulos", {}).items():
@@ -41,7 +41,7 @@ def _dominio(url: str) -> str:
 def validar_confianza_y_fuentes(informe: dict) -> list[str]:
     """confirmado exige >=2 fuentes de dominios distintos, o alguna de nivel 1."""
     errores = []
-    for ubicacion, noticia in _todas_las_noticias(informe):
+    for ubicacion, noticia in todas_las_noticias(informe):
         if noticia["confianza"] != "confirmado":
             continue
         fuentes = noticia["fuentes"]
@@ -88,7 +88,7 @@ def _parsear_numero(texto: str) -> float:
 def validar_cifras(informe: dict, datos: dict) -> list[str]:
     """Cada cifra con ref_datos debe existir en datos.json y coincidir en valor."""
     errores = []
-    for ubicacion, noticia in _todas_las_noticias(informe):
+    for ubicacion, noticia in todas_las_noticias(informe):
         for cifra in noticia.get("cifras", []):
             ref = cifra["ref_datos"]
             if ref is None:
@@ -122,7 +122,7 @@ def validar_fechas_fuente(informe: dict) -> list[str]:
     inicio = informe["periodo"]["inicio"]
     fin = informe["periodo"]["fin"]
     errores = []
-    for ubicacion, noticia in _todas_las_noticias(informe):
+    for ubicacion, noticia in todas_las_noticias(informe):
         for fuente in noticia["fuentes"]:
             if fuente.get("contexto_historico", False):
                 continue
@@ -142,7 +142,7 @@ def validar_palabras_prohibidas(informe: dict, palabras: dict[str, list[str]]) -
         for palabra in lista
     ]
     errores = []
-    for ubicacion, noticia in _todas_las_noticias(informe):
+    for ubicacion, noticia in todas_las_noticias(informe):
         texto = " ".join(
             [noticia["titulo"], noticia["texto"], noticia["por_que_importa"]]
         ).lower()
@@ -179,7 +179,7 @@ def avisos_concentracion_medios(informe: dict, umbral: float = 0.5) -> list[str]
     """Avisa si más de `umbral` de las fuentes del informe son del mismo medio."""
     medios: dict[str, int] = {}
     total = 0
-    for _, noticia in _todas_las_noticias(informe):
+    for _, noticia in todas_las_noticias(informe):
         for fuente in noticia["fuentes"]:
             medios[fuente["medio"]] = medios.get(fuente["medio"], 0) + 1
             total += 1
