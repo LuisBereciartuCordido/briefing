@@ -151,31 +151,31 @@ Un tipo de interés es el precio del dinero: lo que cuesta pedir prestado, o lo 
 
 - [FRED (Fed de San Luis)](https://fred.stlouisfed.org/series/FEDFUNDS) · [BCE](https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV)
 
-**eeuu**
+**EE. UU.**
 
 - [Bureau of Labor Statistics (BLS)](https://www.bls.gov/news.release/empsit.nr0.htm) · [CNBC](https://www.cnbc.com/2026/10/02/jobs-report-september-2026.html)
 
-**europa**
+**Europa**
 
 - [Comisión Europea](https://commission.europa.eu/topics/trade/eu-us-trade-deal_en) · [BCE (proyecciones macroeconómicas)](https://www.ecb.europa.eu/press/projections/html/ecb.projections202512_eurosystemstaff~12ead61977.en.html)
 
-**asia_china**
+**Asia y China**
 
 - [Bloomberg](https://www.bloomberg.com/news/articles/2026-10-01/china-eyes-more-targeted-fiscal-support-after-growth-slowdown)
 
-**emergentes**
+**Emergentes**
 
 - [Bloomberg](https://www.bloomberg.com/news/articles/2026-10-05/emerging-market-assets-climb-as-fed-hike-bets-cool-oil-drops)
 
-**energia_materias_primas**
+**Energía y materias primas**
 
 - [FRED (Fed de San Luis)](https://fred.stlouisfed.org/series/DCOILBRENTEU)
 
-**tecnologia_ia**
+**Tecnología e IA**
 
 - [Bloomberg](https://www.bloomberg.com/news/features/2026-10-01/nvidia-faces-questions-over-china-ai-chip-smuggling-cases)
 
-**geopolitica_riesgos**
+**Geopolítica y riesgos**
 
 - [Al Jazeera](https://www.aljazeera.com/news/2026/10/4/houthis-claim-strike-on-saudi-energy-facility-as-yemen-fighting-intensifies) · [NBC News](https://www.nbcnews.com/world/middle-east/fire-smoke-seen-aramco-facility-riyadh-rcna601278)
 

@@ -101,9 +101,42 @@ def test_renderizar_perspectiva_con_listas_vacias() -> None:
 
 def test_renderizar_para_profundizar_omite_modulos_sin_novedades() -> None:
     informe = _informe_minimo_valido()  # todos los módulos están sin_novedades=True
-    salida = render.renderizar_para_profundizar(informe)
+    salida = render.renderizar_para_profundizar(informe, MODULOS_CFG)
     assert "Macro global" in salida  # macro_global sí tiene una noticia de ejemplo
     assert "eeuu" not in salida
+
+
+def test_renderizar_para_profundizar_usa_el_titulo_del_modulo_no_el_id() -> None:
+    # Bug real (sección 15.4): usaba el id ("asia_china") en vez del título
+    # ("Asia y China") que viene de modulos_cfg.
+    informe = _informe_minimo_valido()
+    informe["modulos"]["asia_china"] = {
+        "sin_novedades": False,
+        "noticias": [
+            {
+                "id": "x",
+                "hilo_id": "x",
+                "titulo": "t",
+                "texto": "t",
+                "por_que_importa": "t",
+                "confianza": "confirmado",
+                "relevancia_espana_ue": "media",
+                "fuentes": [
+                    {
+                        "url": "https://www.reuters.com/a",
+                        "medio": "Reuters",
+                        "nivel": 2,
+                        "fecha": "2026-10-06",
+                        "idioma": "es",
+                    }
+                ],
+                "cifras": [],
+            }
+        ],
+    }
+    salida = render.renderizar_para_profundizar(informe, MODULOS_CFG)
+    assert "Asia y China" in salida
+    assert "asia_china" not in salida
 
 
 def test_renderizar_indice_no_promete_enlaces_de_ancla() -> None:
