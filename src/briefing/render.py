@@ -129,7 +129,8 @@ def renderizar_perspectiva(informe: dict) -> str:
     )
 
 
-def renderizar_para_profundizar(informe: dict) -> str:
+def renderizar_para_profundizar(informe: dict, modulos_cfg: list[dict]) -> str:
+    titulos = {m["id"]: m["titulo"] for m in modulos_cfg}
     bloques = []
     for id_modulo in ("macro_global", *MODULOS_IDS):
         if id_modulo == "macro_global":
@@ -140,7 +141,7 @@ def renderizar_para_profundizar(informe: dict) -> str:
             if modulo.get("sin_novedades"):
                 continue
             noticias = modulo["noticias"]
-            titulo = id_modulo
+            titulo = titulos.get(id_modulo, id_modulo)
         if not noticias:
             continue
         enlaces = "\n".join(
@@ -300,7 +301,7 @@ def renderizar_informe(
         renderizar_modulos(informe, modulos_cfg),
         renderizar_concepto_semana(informe),
         renderizar_perspectiva(informe),
-        renderizar_para_profundizar(informe),
+        renderizar_para_profundizar(informe, modulos_cfg),
         renderizar_contexto_ia(informe, datos),
         renderizar_aviso_legal(),
     ]
