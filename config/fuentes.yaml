@@ -37,6 +37,9 @@ niveles:
       - caixinglobal.com
       - expansion.com
       - cincodias.elpais.com
+      - aljazeera.com
+      - nbcnews.com
+      - cnbc.com
 
   3:
     descripcion: "Opinión y análisis. Solo como contexto, confianza = interpretacion."
