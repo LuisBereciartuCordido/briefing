@@ -7,10 +7,10 @@ name = "briefing"
 version = "0.1.0"
 description = "Generación del briefing semanal de economía y geopolítica."
 requires-python = ">=3.11"
-dependencies = ["jsonschema>=4.21", "PyYAML>=6.0"]
+dependencies = ["jsonschema>=4.21", "PyYAML>=6.0", "requests>=2.31"]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "responses>=0.25"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

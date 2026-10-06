@@ -3,6 +3,10 @@
 No sustituyen la validación contra el esquema (eso lo hace validate.py con
 jsonschema): son la representación en memoria que usan render.py y el resto
 del código una vez que informe.json ya se sabe válido.
+
+También incluye Dato, el modelo que usan los clientes de
+src/briefing/fuentes/ para datos.json (sección 6 de CLAUDE.md), que no
+tiene esquema propio porque no lo produce el redactor.
 """
 
 from __future__ import annotations
@@ -19,6 +23,26 @@ MODULOS_IDS = (
     "tecnologia_ia",
     "geopolitica_riesgos",
 )
+
+
+@dataclass(frozen=True, slots=True)
+class Dato:
+    """Un dato duro de datos.json: valor, unidad, fecha, fuente y URL."""
+
+    valor: float
+    unidad: str
+    fecha: str
+    fuente: str
+    url: str
+
+    def to_dict(self) -> dict:
+        return {
+            "valor": self.valor,
+            "unidad": self.unidad,
+            "fecha": self.fecha,
+            "fuente": self.fuente,
+            "url": self.url,
+        }
 
 
 class Confianza(str, Enum):
