@@ -27,6 +27,6 @@
 - id: brent
   nombre: "Brent"
   unidad: "USD/barril"
-- id: eurusd
+- id: eur_usd
   nombre: "EUR/USD"
   unidad: "USD por EUR"

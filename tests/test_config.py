@@ -45,6 +45,11 @@ def test_mercados_yaml_tiene_ids_unicos() -> None:
         assert instrumento["unidad"]
 
 
+def test_general_yaml_tiene_nombre_newsletter() -> None:
+    general = yaml.safe_load((CONFIG_DIR / "general.yaml").read_text())
+    assert general["nombre_newsletter"]
+
+
 def test_validacion_yaml_tiene_las_dos_listas_no_vacias() -> None:
     validacion = yaml.safe_load((CONFIG_DIR / "validacion.yaml").read_text())
 

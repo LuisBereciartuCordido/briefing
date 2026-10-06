@@ -12,7 +12,7 @@ import logging
 
 import requests
 
-from briefing.validacion import todas_las_noticias
+from briefing.modelos import todas_las_noticias
 
 log = logging.getLogger(__name__)
 

@@ -20,6 +20,7 @@ from pathlib import Path
 
 from briefing.fuentes import ecb, eurostat, fred, ine, mercados
 from briefing.modelos import Dato
+from briefing.semanas import semana_anterior, semana_iso
 
 log = logging.getLogger("fetch_data")
 
@@ -33,24 +34,9 @@ DATA_DIR = RAIZ / "data"
 CLAVES_MENSUALES = {"ipca_eurozona", "ipc_espana", "ipc_eeuu"}
 
 
-def semana_iso(fecha: datetime.date) -> str:
-    """Semana ISO de una fecha, formato AAAA-Sww (sección 7 de CLAUDE.md)."""
-    iso_year, iso_week, _ = fecha.isocalendar()
-    return f"{iso_year}-S{iso_week:02d}"
-
-
-def periodo_de_semana(semana: str) -> tuple[datetime.date, datetime.date]:
-    """(lunes, domingo) de una semana ISO "AAAA-Sww"."""
-    anio_str, semana_str = semana.split("-S")
-    lunes = datetime.date.fromisocalendar(int(anio_str), int(semana_str), 1)
-    return lunes, lunes + datetime.timedelta(days=6)
-
-
 def leer_datos_semana_anterior(semana_actual: str) -> dict | None:
     """Lee datos.json de la semana ISO anterior, si existe."""
-    lunes_actual, _ = periodo_de_semana(semana_actual)
-    semana_anterior = semana_iso(lunes_actual - datetime.timedelta(days=7))
-    ruta = DATA_DIR / semana_anterior / "datos.json"
+    ruta = DATA_DIR / semana_anterior(semana_actual) / "datos.json"
     if not ruta.exists():
         return None
     return json.loads(ruta.read_text())

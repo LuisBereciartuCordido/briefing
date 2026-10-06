@@ -154,6 +154,8 @@ Cada **noticia**:
 - `hilo_id` agrupa la misma historia entre semanas. Antes de asignarlo, el redactor debe revisar los `hilo_id` de las últimas 4 semanas en `data/` y reutilizarlos cuando sea la misma historia.
 - `cifras` permite que `validate.py` compruebe los números contra `datos.json`.
 
+> **Desviación registrada (rama `feat/validate`):** cada fuente puede llevar también `"contexto_historico": true|false` (por defecto `false`). Sin este campo, la regla de la sección 12 ("una fuente con fecha fuera del periodo **y sin marca de contexto histórico**") era imposible de comprobar — no había forma de que el redactor declarase esa excepción en ningún sitio del esquema original. Es opcional y no afecta a ningún informe existente.
+
 ## 8. Flujo semanal (`TAREA_SEMANAL.md`, para la tarea programada)
 
 `CLAUDE.md` se carga automáticamente en cada sesión de Claude Code, así que **no** debe contener las instrucciones semanales: solo las convenciones del proyecto (sección 16). La tarea programada se configura con un prompt corto del tipo "Lee y ejecuta TAREA_SEMANAL.md".
@@ -249,6 +251,8 @@ Avisos (no bloquean, pero aparecen en el resumen):
 - Módulo que supera su límite de palabras.
 - Más del 50 % de las fuentes de un solo medio.
 - Módulo sin ninguna fuente de nivel 1 o 2.
+
+> **Aclaración (rama `feat/validate`):** `fuentes_descartadas` y `cambios_verificador` ya son campos de `informe.json` (sección 7) — eso es lo que lee `render.py` para la transparencia breve. `validate.py` **no** los duplica en `log.json`: solo escribe sus propios hallazgos (`errores`/`avisos` de esta sección) bajo la clave `"validacion"`, sin pisar el resto de contenido que `log.json` ya tuviera. Si una rama futura (verificador, orquestación) también escribe en `log.json`, que añada su propia clave en vez de sobrescribir el archivo entero.
 
 ## 13. Renderizado del email (`render.py`)
 

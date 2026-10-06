@@ -1,19 +1,8 @@
-import datetime
 import json
 from pathlib import Path
 
 import fetch_data
 from briefing.modelos import Dato
-
-
-def test_semana_iso() -> None:
-    assert fetch_data.semana_iso(datetime.date(2026, 10, 5)) == "2026-S41"
-
-
-def test_periodo_de_semana() -> None:
-    lunes, domingo = fetch_data.periodo_de_semana("2026-S41")
-    assert lunes == datetime.date(2026, 10, 5)
-    assert domingo == datetime.date(2026, 10, 11)
 
 
 def test_leer_datos_semana_anterior_sin_archivo_devuelve_none(

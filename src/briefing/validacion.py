@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
 
-from briefing.modelos import MODULOS_IDS
+from briefing.modelos import MODULOS_IDS, todas_las_noticias
 
 
 @dataclass
@@ -24,14 +24,6 @@ class ResultadoValidacion:
     @property
     def es_valido(self) -> bool:
         return not self.errores
-
-
-def todas_las_noticias(informe: dict) -> list[tuple[str, dict]]:
-    """[(ubicacion, noticia), ...] de todo el informe, para no repetir el recorrido."""
-    noticias = [("macro_global", n) for n in informe.get("macro_global", [])]
-    for id_modulo, modulo in informe.get("modulos", {}).items():
-        noticias += [(id_modulo, n) for n in modulo.get("noticias", [])]
-    return noticias
 
 
 def _dominio(url: str) -> str:
