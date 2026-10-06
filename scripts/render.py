@@ -3,6 +3,10 @@
 
 Uso:
     python scripts/render.py --semana AAAA-Sww
+
+También escribe data/<semana>/transparencia.md ("cómo se hizo este
+informe") — es de uso interno, nunca se publica ni se adjunta al
+borrador de Buttondown (decisión de producto, sección 5 de CLAUDE.md).
 """
 
 from __future__ import annotations
@@ -15,7 +19,7 @@ from pathlib import Path
 
 import yaml
 
-from briefing.render import renderizar_informe
+from briefing.render import renderizar_informe, renderizar_transparencia
 from briefing.semanas import semana_anterior
 
 log = logging.getLogger("render")
@@ -55,6 +59,10 @@ def main(argv: list[str] | None = None) -> int:
     ruta_salida = carpeta / "informe.md"
     ruta_salida.write_text(markdown)
     log.info("Escrito %s", ruta_salida)
+
+    ruta_transparencia = carpeta / "transparencia.md"
+    ruta_transparencia.write_text(renderizar_transparencia(informe))
+    log.info("Escrito %s (uso interno, no se publica)", ruta_transparencia)
     return 0
 
 

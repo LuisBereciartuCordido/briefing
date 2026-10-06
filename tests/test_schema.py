@@ -20,6 +20,10 @@ def _informe_minimo_valido() -> dict:
     return {
         "semana": "2026-S41",
         "periodo": {"inicio": "2026-10-05", "fin": "2026-10-11"},
+        "titular": {
+            "texto": "El BCE mantiene los tipos mientras el mercado mira a octubre",
+            "noticia_id": "2026-S41-macro-01",
+        },
         "lo_esencial": ["El BCE mantiene los tipos sin cambios."],
         "macro_global": [
             {
@@ -60,13 +64,6 @@ def _informe_minimo_valido() -> dict:
             "estructural": ["La política monetaria sigue restrictiva."],
             "ruido": [],
         },
-        "agenda": [
-            {
-                "fecha": "2026-10-12",
-                "evento": "Reunión de la Fed",
-                "por_que_importa": "Puede mover los tipos en EE. UU.",
-            }
-        ],
         "fuentes_descartadas": [],
         "cambios_verificador": [],
     }
@@ -105,3 +102,18 @@ def test_fuente_con_contexto_historico_es_opcional(schema: dict) -> None:
     # Y sigue siendo válida sin el campo (no es obligatorio).
     informe_sin_campo = _informe_minimo_valido()
     jsonschema.validate(informe_sin_campo, schema)
+
+
+def test_modulo_sin_novedades_false_y_sin_noticias_falla(schema: dict) -> None:
+    # Hallazgo real de /code-review: sin esta regla, render.py produciría
+    # una sección "## Título\n\n" vacía, sin ningún aviso.
+    informe = _informe_minimo_valido()
+    informe["modulos"]["eeuu"] = {"sin_novedades": False, "noticias": []}
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(informe, schema)
+
+
+def test_modulo_sin_novedades_true_y_sin_noticias_pasa(schema: dict) -> None:
+    informe = _informe_minimo_valido()
+    informe["modulos"]["eeuu"] = {"sin_novedades": True, "noticias": []}
+    jsonschema.validate(informe, schema)  # no debe lanzar

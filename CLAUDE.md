@@ -80,6 +80,9 @@ briefing/
 
 ## 5. Contenido del informe
 
+### Cabecera
+0. **Titular:** una frase llamativa, tipo prensa, que recoge la noticia más remarcable de la semana entre todas las que hay en el informe (no necesariamente la de "Lo esencial" #1). Va debajo del nombre de la newsletter, como un subtítulo. Nada de sensacionalismo (sigue valiendo `prompts/estilo.md`): "llamativo" es "da ganas de leer", no "exagerado". Guarda también a qué noticia se refiere (`noticia_id`), para poder enlazarla.
+
 ### Núcleo fijo (siempre)
 1. **Lo esencial:** 5 líneas como máximo.
 2. **Tabla de mercados de la semana:** variación semanal de los instrumentos de `mercados.yaml`. Propuesta inicial: S&P 500, MSCI World, MSCI Emerging Markets, MSCI Europe (o Euro Stoxx 50), Nikkei 225 o MSCI Japan, oro, Brent y EUR/USD. Los números salen **solo** de `datos.json`.
@@ -93,13 +96,15 @@ Si un módulo no tiene novedades relevantes, se indica en una línea.
 ### Cierre
 4. **Concepto de la semana:** explicación en 4-5 líneas de un concepto que aparezca en el informe. Guarda un identificador del concepto para enlazarlo en el futuro con el curso para principiantes.
 5. **Perspectiva de largo plazo:** qué de esta semana tiene relevancia estructural (años) y qué es ruido (días).
-6. **Agenda de la semana siguiente:** bancos centrales, datos macro y eventos políticos, con fecha.
-7. **Para profundizar:** enlaces agrupados por módulo.
-8. **Paquete de contexto para IA** (sección 13).
-9. **Cómo se hizo este informe** (transparencia, sección 13).
-10. **Aviso fijo:** "Contenido informativo. No es asesoramiento financiero."
+6. **Para profundizar:** enlaces agrupados por módulo.
+7. **Paquete de contexto para IA** (sección 13).
+8. **Aviso fijo:** "Contenido informativo. No es asesoramiento financiero."
 
-**Longitud del cuerpo principal (puntos 1 a 7):** lectura de 5 a 7 minutos. Pon un límite de palabras por módulo en `modulos.yaml`.
+**Longitud del cuerpo principal (puntos 1 a 6):** lectura de 5 a 7 minutos. Pon un límite de palabras por módulo en `modulos.yaml`.
+
+> **Decisión de producto (revisada tras la primera prueba real, sección 15.4):**
+> - **Sin agenda de la semana siguiente.** Se quita del informe: no aportaba suficiente valor frente a su coste de mantenimiento, y el dueño del proyecto no le veía el sentido al verlo con contenido real.
+> - **"Cómo se hizo este informe" deja de ir en el email que reciben los suscriptores.** Mostrar las correcciones del verificador a todo el mundo da sensación de "esto tiene fallos", lo contrario de lo que se busca (transmitir fiabilidad). Sigue generándose — el dueño del proyecto sí quiere verlo — pero en un archivo aparte de solo lectura interna (`data/<semana>/transparencia.md`), no en `informe.md`. El detalle completo, como siempre, queda también en `log.json`.
 
 ## 6. Datos duros (`fetch_data.py`)
 
@@ -122,6 +127,7 @@ Esta es la decisión más importante de la arquitectura. Todo (email, paquete de
 {
   "semana": "2026-S41",
   "periodo": {"inicio": "AAAA-MM-DD", "fin": "AAAA-MM-DD"},
+  "titular": {"texto": "...", "noticia_id": "2026-S41-eeuu-01"},
   "lo_esencial": ["..."],
   "macro_global": [ /* noticia */ ],
   "modulos": {
@@ -129,7 +135,6 @@ Esta es la decisión más importante de la arquitectura. Todo (email, paquete de
   },
   "concepto_semana": {"id": "curva-de-tipos", "titulo": "...", "texto": "..."},
   "perspectiva_largo_plazo": {"estructural": ["..."], "ruido": ["..."]},
-  "agenda": [{"fecha": "AAAA-MM-DD", "evento": "...", "por_que_importa": "..."}],
   "fuentes_descartadas": [{"url": "...", "motivo": "antigua | nivel 3 | contradictoria | paywall | otro"}],
   "cambios_verificador": [{"noticia_id": "...", "cambio": "...", "motivo": "..."}]
 }
@@ -164,11 +169,11 @@ La tarea programada se ejecuta el **domingo hacia mediodía (hora de Madrid)**, 
 
 1. Ejecutar `fetch_data.py` → `datos.json`. Si falla, detenerse.
 2. **Redacción, un módulo cada vez:** para cada módulo de `modulos.yaml`, investigar con búsqueda web respetando `fuentes.yaml` y escribir sus noticias en `borrador.json` siguiendo `prompts/redactor.md` y `prompts/estilo.md`. Tratar cada módulo por separado garantiza una cobertura equilibrada.
-3. **Unión:** redactar "Lo esencial", "Macro global", "Concepto de la semana", "Perspectiva de largo plazo" y "Agenda", y eliminar duplicados entre módulos.
+3. **Unión:** redactar "Titular", "Lo esencial", "Macro global", "Concepto de la semana" y "Perspectiva de largo plazo", y eliminar duplicados entre módulos. El titular recoge la noticia más remarcable del conjunto, no necesariamente una de "Lo esencial".
 4. **Verificación en frío:** releer `borrador.json` como revisor escéptico siguiendo `prompts/verificador.md`. Abrir de nuevo las fuentes para comprobar cada afirmación (no fiarse del recuerdo de la redacción). Resultado: `informe.json` con `cambios_verificador`.
 5. Ejecutar `validate.py`. Si hay errores, corregirlos y repetir (máximo 2 intentos). Si persisten, detenerse sin publicar y dejar el error en `log.json`.
-6. Ejecutar `render.py` → `informe.md`.
-7. Ejecutar `publish.py` → **borrador** en Buttondown con el asunto: "{NOMBRE} · Semana del {inicio} al {fin}".
+6. Ejecutar `render.py` → `informe.md` (el email público) y `transparencia.md` (solo para uso interno, no se publica).
+7. Ejecutar `publish.py` → **borrador** en Buttondown con el asunto: "{NOMBRE}: {titular}".
 8. Commit de la carpeta de la semana según la estrategia de ramas acordada en la Fase 0.
 9. Terminar con un resumen breve: módulos cubiertos, número de fuentes, avisos del validador y enlace al borrador.
 
@@ -257,6 +262,7 @@ Avisos (no bloquean, pero aparecen en el resumen):
 ## 13. Renderizado del email (`render.py`)
 
 - Markdown limpio, compatible con Buttondown y legible en móvil.
+- **Título llamativo:** nombre de la newsletter + el `titular` del informe como subtítulo, no una fecha mecánica. La fecha del periodo queda como una línea pequeña debajo.
 - Índice al principio con los módulos.
 - Tabla de mercados generada desde `datos.json`.
 - Enlaces de fuente en línea tras cada afirmación y agrupados en "Para profundizar".
@@ -267,8 +273,11 @@ Avisos (no bloquean, pero aparecen en el resumen):
   - Cada noticia en forma compacta: título, resumen propio, confianza, fuentes (URL y fecha) y `hilo_id`.
   - Sin texto copiado de artículos.
   - Tamaño razonable: si supera un límite configurable, resumir más.
-- **Cómo se hizo este informe** (transparencia), en versión breve tras el paquete: número de fuentes usadas por nivel, número de descartadas por motivo y los cambios principales del verificador. El detalle completo queda en `log.json`.
 - Aviso legal fijo al final.
+
+**"Cómo se hizo este informe" (transparencia) NO va en `informe.md`** (decisión de producto, sección 5): mostrar las correcciones del verificador a todos los suscriptores resta fiabilidad percibida en vez de sumarla. En su lugar, `render.py` escribe esa misma sección (número de fuentes por nivel, descartes por motivo, cambios del verificador) en un archivo separado, `data/<semana>/transparencia.md`, de uso interno — nunca se publica ni se adjunta al borrador de Buttondown. El detalle completo, como siempre, queda también en `log.json`.
+
+> **Hallazgo real (sección 15.4, prueba en local):** `publish.py` crea el borrador con el Markdown exacto que generó `render.py` — lo confirmamos leyendo el borrador recién creado vía la API, con la tabla de mercados intacta. Pero **abrir el borrador en el editor "fancy" (visual) de Buttondown y hacer clic dentro del cuerpo reconvierte el Markdown a HTML y pierde la fila de cabecera de las tablas** (comprobado: la fila "Instrumento / Valor / Variación semanal" desaparece por completo). Al revisar el borrador cada semana antes de enviarlo: evita entrar al editor de edición de texto si puedes revisarlo en una vista de solo lectura/preview; si necesitas editarlo, comprueba después que las tablas siguen teniendo su fila de cabecera antes de pulsar enviar. Esto hay que explicarlo en el README (sección 15.5).
 
 ## 14. Fuera de alcance por ahora (diseña sin cerrar estas puertas)
 
@@ -318,5 +327,5 @@ Tengo poca experiencia con git. **Yo hago todos los commits, el push y los Pull 
 
 ## Valores pendientes
 
-- `{NOMBRE}`: **"Swans & Unicorns"**.
+- `{NOMBRE}`: **"The Macrochip"**.
 - Secrets necesarios: `BUTTONDOWN_API_KEY` y `FRED_API_KEY`. En el *environment* de la Routine (plan Pro/Max), guárdalos como **API credentials** en vez de variables de entorno planas, para que no sean visibles dentro de la sesión (ver Fase 0).

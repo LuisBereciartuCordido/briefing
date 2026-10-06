@@ -45,6 +45,23 @@ def test_error_de_esquema_no_sigue_con_las_demas_comprobaciones() -> None:
     assert len(resultado.errores) == 1  # solo el error de esquema, sin cascada
 
 
+def test_titular_con_id_inexistente_bloquea_un_informe_por_lo_demas_valido() -> None:
+    informe = copy.deepcopy(_informe_minimo_valido())
+    informe["titular"]["noticia_id"] = "no-existe"
+
+    resultado = validate.validar_informe(
+        informe,
+        datos={},
+        esquema=SCHEMA,
+        palabras=PALABRAS,
+        modulos_cfg=MODULOS_CFG,
+        comprobar_enlaces=False,
+    )
+
+    assert not resultado.es_valido
+    assert "no-existe" in resultado.errores[0]
+
+
 def test_palabra_prohibida_bloquea_un_informe_por_lo_demas_valido() -> None:
     informe = copy.deepcopy(_informe_minimo_valido())
     informe["macro_global"][0]["texto"] += " Cunde el pánico en los mercados."

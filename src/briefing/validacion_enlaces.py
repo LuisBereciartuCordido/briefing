@@ -18,7 +18,15 @@ log = logging.getLogger(__name__)
 
 TIMEOUT_SEGUNDOS = 10
 INTENTOS = 2
-CABECERAS = {"User-Agent": "Mozilla/5.0"}
+
+# Deliberadamente sin cabecera "User-Agent" propia (sección 15.4: se
+# comprobó en vivo que un valor como "Mozilla/5.0" —ni un navegador real
+# ni el user-agent por defecto de requests— hace que algunos CDN (p. ej.
+# fred.stlouisfed.org) dejen la conexión colgada en vez de responder,
+# y eso se ve como un enlace roto sin serlo. El user-agent por defecto de
+# requests llega bien a esos sitios; si otro sitio lo bloquea, ya lo
+# cubre CODIGOS_POSIBLE_BLOQUEO como aviso, no como error.
+CABECERAS: dict[str, str] = {}
 
 # Códigos que normalmente significan "nos detectó como bot" o "paywall",
 # no que el enlace esté roto: se avisa, no se bloquea (sección 12).

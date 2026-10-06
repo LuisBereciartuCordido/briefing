@@ -28,8 +28,7 @@ CONFIG_DIR = RAIZ / "config"
 
 
 def construir_asunto(informe: dict, nombre_newsletter: str) -> str:
-    periodo = informe["periodo"]
-    return f"{nombre_newsletter} · Semana del {periodo['inicio']} al {periodo['fin']}"
+    return f"{nombre_newsletter}: {informe['titular']['texto']}"
 
 
 def main(argv: list[str] | None = None) -> int:

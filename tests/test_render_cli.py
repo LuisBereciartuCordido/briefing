@@ -18,8 +18,12 @@ def test_main_escribe_informe_md(tmp_path: Path, monkeypatch) -> None:
 
     assert codigo == 0
     contenido = (carpeta / "informe.md").read_text()
-    assert "Swans & Unicorns" in contenido
+    assert "The Macrochip" in contenido
     assert "No es asesoramiento financiero" in contenido
+    assert "Cómo se hizo este informe" not in contenido  # eso va solo en transparencia.md
+
+    transparencia = (carpeta / "transparencia.md").read_text()
+    assert "Cómo se hizo este informe" in transparencia
 
 
 def test_main_usa_datos_de_la_semana_anterior_si_existen(tmp_path: Path, monkeypatch) -> None:

@@ -154,10 +154,9 @@ class PerspectivaLargoPlazo:
 
 
 @dataclass(frozen=True, slots=True)
-class EventoAgenda:
-    fecha: str
-    evento: str
-    por_que_importa: str
+class Titular:
+    texto: str
+    noticia_id: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -177,12 +176,12 @@ class CambioVerificador:
 class Informe:
     semana: str
     periodo: Periodo
+    titular: Titular
     lo_esencial: list[str]
     macro_global: list[Noticia]
     modulos: dict[str, Modulo]
     concepto_semana: ConceptoSemana
     perspectiva_largo_plazo: PerspectivaLargoPlazo
-    agenda: list[EventoAgenda]
     fuentes_descartadas: list[FuenteDescartada] = field(default_factory=list)
     cambios_verificador: list[CambioVerificador] = field(default_factory=list)
 
@@ -191,12 +190,12 @@ class Informe:
         return cls(
             semana=data["semana"],
             periodo=Periodo(**data["periodo"]),
+            titular=Titular(**data["titular"]),
             lo_esencial=list(data["lo_esencial"]),
             macro_global=[Noticia.from_dict(n) for n in data["macro_global"]],
             modulos={k: Modulo.from_dict(v) for k, v in data["modulos"].items()},
             concepto_semana=ConceptoSemana(**data["concepto_semana"]),
             perspectiva_largo_plazo=PerspectivaLargoPlazo(**data["perspectiva_largo_plazo"]),
-            agenda=[EventoAgenda(**a) for a in data["agenda"]],
             fuentes_descartadas=[
                 FuenteDescartada(**f) for f in data.get("fuentes_descartadas", [])
             ],

@@ -10,14 +10,14 @@
   nombre: "S&P 500"
   unidad: puntos
 - id: msci_world
-  nombre: "MSCI World"
-  unidad: puntos
+  nombre: "MSCI World (ETF)"
+  unidad: USD
 - id: msci_em
-  nombre: "MSCI Emerging Markets"
-  unidad: puntos
+  nombre: "MSCI Emerging Markets (ETF)"
+  unidad: USD
 - id: msci_europe
-  nombre: "MSCI Europe"
-  unidad: puntos
+  nombre: "MSCI Europe (ETF)"
+  unidad: USD
 - id: nikkei225
   nombre: "Nikkei 225"
   unidad: puntos

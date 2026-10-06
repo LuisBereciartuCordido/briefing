@@ -29,14 +29,17 @@ TIMEOUT_SEGUNDOS = 20
 CABECERAS = {"User-Agent": "Mozilla/5.0"}
 
 # id de mercados.yaml -> (ticker de Yahoo, unidad). nikkei225 es el índice
-# real; los demás son proxies (ETF o futuro) de instrumentos que no tienen
-# fuente oficial gratuita.
+# real (puntos); oro es un futuro en USD/onza; los tres MSCI son ETFs
+# (sección 15.4: un ETF cotiza en dólares por participación, no en
+# "puntos" — llamarlo así sería un dato incorrecto, no solo un matiz de
+# formato), así que su unidad es USD, igual que ya refleja
+# config/mercados.yaml.
 INSTRUMENTOS: dict[str, tuple[str, str]] = {
     "nikkei225": ("^N225", "puntos"),
     "oro": ("GC=F", "USD/onza"),
-    "msci_world": ("URTH", "puntos"),
-    "msci_em": ("IEMG", "puntos"),
-    "msci_europe": ("IEUR", "puntos"),
+    "msci_world": ("URTH", "USD"),
+    "msci_em": ("IEMG", "USD"),
+    "msci_europe": ("IEUR", "USD"),
 }
 
 
