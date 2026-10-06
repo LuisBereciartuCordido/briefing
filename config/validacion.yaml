@@ -1,0 +1,23 @@
+# Lista configurable de palabras/frases de sensacionalismo y recomendación
+# que bloquean la publicación (sección 12 de CLAUDE.md). Se busca cada
+# entrada sin distinguir mayúsculas/minúsculas en el título, el texto y el
+# "por qué importa" de cada noticia.
+#
+# Amplía esta lista sin tocar código: validate.py la lee directamente.
+
+sensacionalismo:
+  - "desplome histórico"
+  - "pánico"
+  - "lo que nadie te cuenta"
+  - "catástrofe"
+  - "hundimiento"
+  - "se hunde"
+  - "estallido"
+
+recomendacion:
+  - "deberías comprar"
+  - "deberías vender"
+  - "es el momento de invertir"
+  - "recomendamos comprar"
+  - "recomendamos vender"
+  - "mejor momento para invertir"
