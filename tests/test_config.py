@@ -43,3 +43,13 @@ def test_mercados_yaml_tiene_ids_unicos() -> None:
     for instrumento in mercados:
         assert instrumento["nombre"]
         assert instrumento["unidad"]
+
+
+def test_validacion_yaml_tiene_las_dos_listas_no_vacias() -> None:
+    validacion = yaml.safe_load((CONFIG_DIR / "validacion.yaml").read_text())
+
+    assert set(validacion) == {"sensacionalismo", "recomendacion"}
+    for lista in validacion.values():
+        assert len(lista) > 0
+        for frase in lista:
+            assert frase == frase.lower(), f"'{frase}' debería estar en minúsculas"

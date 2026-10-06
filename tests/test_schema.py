@@ -95,3 +95,13 @@ def test_noticia_sin_fuentes_falla(schema: dict) -> None:
     informe["macro_global"][0]["fuentes"] = []
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(informe, schema)
+
+
+def test_fuente_con_contexto_historico_es_opcional(schema: dict) -> None:
+    informe = _informe_minimo_valido()
+    informe["macro_global"][0]["fuentes"][0]["contexto_historico"] = True
+    jsonschema.validate(informe, schema)  # no debe lanzar
+
+    # Y sigue siendo válida sin el campo (no es obligatorio).
+    informe_sin_campo = _informe_minimo_valido()
+    jsonschema.validate(informe_sin_campo, schema)

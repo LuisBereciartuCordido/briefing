@@ -187,7 +187,12 @@
         "medio": { "type": "string", "minLength": 1 },
         "nivel": { "type": "integer", "enum": [1, 2, 3] },
         "fecha": { "type": "string", "format": "date" },
-        "idioma": { "type": "string", "minLength": 2, "maxLength": 5 }
+        "idioma": { "type": "string", "minLength": 2, "maxLength": 5 },
+        "contexto_historico": {
+          "type": "boolean",
+          "default": false,
+          "description": "true si esta fuente se cita deliberadamente como contexto histórico (prompts/redactor.md), aunque su fecha caiga fuera del periodo del informe. Si falta, se asume false."
+        }
       }
     },
     "cifra": {
