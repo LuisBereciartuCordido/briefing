@@ -1,14 +1,20 @@
-"""Renderiza informe.json (+ datos.json) a Markdown (sección 13 de CLAUDE.md).
-
-El cuerpo principal (puntos 1 a 7 de la sección 5) vive en este módulo.
-Las piezas de cierre (paquete de contexto para IA, transparencia y aviso
-legal) se añaden en un commit posterior, junto con el ensamblado final y
-la CLI en scripts/render.py.
-"""
+"""Renderiza informe.json (+ datos.json) a Markdown (sección 13 de CLAUDE.md)."""
 
 from __future__ import annotations
 
-from briefing.modelos import MODULOS_IDS
+from briefing.modelos import MODULOS_IDS, todas_las_noticias
+
+AVISO_LEGAL = "Contenido informativo. No es asesoramiento financiero."
+
+INSTRUCCION_CONTEXTO_IA = "Copia este bloque y pégalo en tu asistente de IA para profundizar."
+
+PROMPT_SUGERIDO_IA = (
+    "Usa este contexto para explicarme en detalle [tema] y qué significa para "
+    "alguien que vive en España. Si algo no está en el contexto, búscalo en "
+    "fuentes fiables y dime cuáles son."
+)
+
+LIMITE_CONTEXTO_IA_CARACTERES = 6000
 
 EMOJI_CONFIANZA = {
     "confirmado": "✅",
@@ -141,3 +147,123 @@ def renderizar_indice(modulos_cfg: list[dict]) -> str:
     # vayan a funcionar. Es una lista de lectura, no de navegación.
     lineas = "\n".join(f"- {m['titulo']}" for m in modulos_cfg)
     return f"**En este informe:**\n\n{lineas}\n"
+
+
+def renderizar_titulo(informe: dict, nombre_newsletter: str) -> str:
+    periodo = informe["periodo"]
+    return f"# {nombre_newsletter} · Semana del {periodo['inicio']} al {periodo['fin']}\n"
+
+
+def renderizar_contexto_ia(
+    informe: dict, datos: dict, *, limite_caracteres: int = LIMITE_CONTEXTO_IA_CARACTERES
+) -> str:
+    """Bloque de código copiable con el contexto en bruto (sección 13).
+
+    Solo usa resúmenes propios (ya están en informe.json, nunca texto
+    copiado de un artículo) y datos con su fecha y fuente — nunca un
+    número suelto sin de dónde sale.
+    """
+    lineas = [
+        f"PROMPT SUGERIDO: {PROMPT_SUGERIDO_IA}",
+        "",
+        f"PERIODO: {informe['periodo']['inicio']} a {informe['periodo']['fin']}",
+        "",
+        "DATOS DUROS:",
+    ]
+    for clave, dato in sorted(datos.items()):
+        lineas.append(
+            f"- {clave}: {dato['valor']} {dato['unidad']} "
+            f"({dato['fecha']}, fuente: {dato['fuente']})"
+        )
+
+    lineas.append("")
+    lineas.append("NOTICIAS:")
+    for _, noticia in todas_las_noticias(informe):
+        fuentes = "; ".join(f"{f['medio']} {f['fecha']}" for f in noticia["fuentes"])
+        lineas.append(
+            f"- [{noticia['hilo_id']}] {noticia['titulo']} — {noticia['texto']} "
+            f"(confianza: {noticia['confianza']}; fuentes: {fuentes})"
+        )
+
+    cuerpo = "\n".join(lineas)
+    nota_recorte = ""
+    if len(cuerpo) > limite_caracteres:
+        # Mejor un contexto algo más corto que un email roto: se recorta y
+        # se avisa dentro del propio bloque, en vez de fallar.
+        cuerpo = cuerpo[:limite_caracteres].rstrip()
+        nota_recorte = "\n\n[...contexto recortado por tamaño...]"
+
+    return (
+        "## Paquete de contexto para IA\n\n"
+        f"{INSTRUCCION_CONTEXTO_IA}\n\n"
+        "```\n"
+        f"{cuerpo}{nota_recorte}\n"
+        "```\n"
+    )
+
+
+def renderizar_transparencia(informe: dict) -> str:
+    """Versión breve de "cómo se hizo este informe" (sección 13).
+
+    El detalle completo (cada cambio, cada fuente descartada con su
+    motivo exacto) queda en log.json; aquí solo van los números.
+    """
+    conteo_niveles = {1: 0, 2: 0, 3: 0}
+    for _, noticia in todas_las_noticias(informe):
+        for fuente in noticia["fuentes"]:
+            conteo_niveles[fuente["nivel"]] += 1
+    resumen_niveles = ", ".join(f"nivel {n}: {c}" for n, c in sorted(conteo_niveles.items()))
+
+    conteo_descartes: dict[str, int] = {}
+    for descartada in informe.get("fuentes_descartadas", []):
+        motivo = descartada["motivo"]
+        conteo_descartes[motivo] = conteo_descartes.get(motivo, 0) + 1
+    resumen_descartes = (
+        ", ".join(f"{motivo}: {c}" for motivo, c in conteo_descartes.items()) or "ninguna"
+    )
+
+    cambios = informe.get("cambios_verificador", [])
+    primeros_cambios = "\n".join(f"- {c['noticia_id']}: {c['cambio']}" for c in cambios[:5])
+    resumen_cambios = primeros_cambios or "- (sin cambios)"
+    if len(cambios) > 5:
+        resumen_cambios += f"\n\n_{len(cambios) - 5} cambio(s) más en log.json._"
+
+    return (
+        "## Cómo se hizo este informe\n\n"
+        f"Fuentes citadas por nivel: {resumen_niveles}.\n\n"
+        f"Fuentes descartadas: {resumen_descartes}.\n\n"
+        f"Principales cambios del verificador:\n\n{resumen_cambios}\n\n"
+        "El detalle completo queda en `log.json`.\n"
+    )
+
+
+def renderizar_aviso_legal() -> str:
+    return f"---\n\n_{AVISO_LEGAL}_\n"
+
+
+def renderizar_informe(
+    informe: dict,
+    datos: dict,
+    datos_semana_anterior: dict | None,
+    *,
+    mercados_cfg: list[dict],
+    modulos_cfg: list[dict],
+    nombre_newsletter: str,
+) -> str:
+    """Ensambla el Markdown completo del email, en el orden de la sección 5."""
+    secciones = [
+        renderizar_titulo(informe, nombre_newsletter),
+        renderizar_indice(modulos_cfg),
+        renderizar_lo_esencial(informe),
+        renderizar_tabla_mercados(datos, datos_semana_anterior, mercados_cfg),
+        renderizar_macro_global(informe),
+        renderizar_modulos(informe, modulos_cfg),
+        renderizar_concepto_semana(informe),
+        renderizar_perspectiva(informe),
+        renderizar_agenda(informe),
+        renderizar_para_profundizar(informe),
+        renderizar_contexto_ia(informe, datos),
+        renderizar_transparencia(informe),
+        renderizar_aviso_legal(),
+    ]
+    return "\n\n".join(secciones) + "\n"

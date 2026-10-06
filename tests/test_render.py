@@ -116,3 +116,94 @@ def test_renderizar_indice_no_promete_enlaces_de_ancla() -> None:
     salida = render.renderizar_indice(MODULOS_CFG)
     assert "EE. UU." in salida
     assert "[" not in salida  # no son enlaces, solo una lista de lectura
+
+
+def test_renderizar_titulo() -> None:
+    informe = _informe_minimo_valido()
+    salida = render.renderizar_titulo(informe, "Swans & Unicorns")
+    assert "Swans & Unicorns" in salida
+    assert informe["periodo"]["inicio"] in salida
+    assert informe["periodo"]["fin"] in salida
+
+
+def test_renderizar_contexto_ia_incluye_datos_y_noticias() -> None:
+    informe = _informe_minimo_valido()
+    datos = {"sp500": {"valor": 7700.0, "unidad": "puntos", "fecha": "2026-10-03", "fuente": "FRED"}}
+
+    salida = render.renderizar_contexto_ia(informe, datos)
+
+    assert "sp500" in salida
+    assert informe["macro_global"][0]["titulo"] in salida
+    assert informe["macro_global"][0]["hilo_id"] in salida
+    assert "```" in salida  # bloque de código copiable
+
+
+def test_renderizar_contexto_ia_recorta_si_supera_el_limite() -> None:
+    informe = _informe_minimo_valido()
+    salida = render.renderizar_contexto_ia(informe, datos={}, limite_caracteres=50)
+    assert "[...contexto recortado por tamaño...]" in salida
+
+
+def test_renderizar_transparencia_cuenta_fuentes_por_nivel() -> None:
+    informe = _informe_minimo_valido()  # una fuente de nivel 1
+    salida = render.renderizar_transparencia(informe)
+    assert "nivel 1: 1" in salida
+    assert "nivel 2: 0" in salida
+
+
+def test_renderizar_transparencia_cuenta_descartes_por_motivo() -> None:
+    informe = copy.deepcopy(_informe_minimo_valido())
+    informe["fuentes_descartadas"] = [
+        {"url": "https://x.com/a", "motivo": "paywall"},
+        {"url": "https://x.com/b", "motivo": "paywall"},
+        {"url": "https://x.com/c", "motivo": "antigua"},
+    ]
+    salida = render.renderizar_transparencia(informe)
+    assert "paywall: 2" in salida
+    assert "antigua: 1" in salida
+
+
+def test_renderizar_transparencia_resume_mas_de_5_cambios() -> None:
+    informe = copy.deepcopy(_informe_minimo_valido())
+    informe["cambios_verificador"] = [
+        {"noticia_id": f"n{i}", "cambio": "x", "motivo": "y"} for i in range(7)
+    ]
+    salida = render.renderizar_transparencia(informe)
+    assert "2 cambio(s) más en log.json" in salida
+
+
+def test_renderizar_aviso_legal() -> None:
+    assert "No es asesoramiento financiero" in render.renderizar_aviso_legal()
+
+
+def test_renderizar_informe_junta_todas_las_secciones_en_orden() -> None:
+    informe = _informe_minimo_valido()
+    salida = render.renderizar_informe(
+        informe,
+        datos={},
+        datos_semana_anterior=None,
+        mercados_cfg=MERCADOS_CFG,
+        modulos_cfg=MODULOS_CFG,
+        nombre_newsletter="Swans & Unicorns",
+    )
+
+    for titulo in (
+        "Swans & Unicorns",
+        "Lo esencial",
+        "Mercados esta semana",
+        "Macro global",
+        "Concepto de la semana",
+        "Perspectiva de largo plazo",
+        "Agenda de la semana siguiente",
+        "Para profundizar",
+        "Paquete de contexto para IA",
+        "Cómo se hizo este informe",
+        "No es asesoramiento financiero",
+    ):
+        assert titulo in salida
+
+    assert salida.index("Lo esencial") < salida.index("Mercados esta semana")
+    assert salida.index("Para profundizar") < salida.index("Paquete de contexto para IA")
+    assert salida.index("Cómo se hizo este informe") < salida.index(
+        "No es asesoramiento financiero"
+    )

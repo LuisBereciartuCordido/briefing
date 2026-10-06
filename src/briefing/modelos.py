@@ -25,6 +25,20 @@ MODULOS_IDS = (
 )
 
 
+def todas_las_noticias(informe: dict) -> list[tuple[str, dict]]:
+    """[(ubicacion, noticia), ...] de todo el informe (macro_global + módulos).
+
+    Vive aquí, y no en validacion.py, porque validacion.py,
+    validacion_enlaces.py y render.py necesitan recorrer el informe
+    exactamente igual y ninguno de los tres debería depender de otro solo
+    por esto.
+    """
+    noticias = [("macro_global", n) for n in informe.get("macro_global", [])]
+    for id_modulo, modulo in informe.get("modulos", {}).items():
+        noticias += [(id_modulo, n) for n in modulo.get("noticias", [])]
+    return noticias
+
+
 @dataclass(frozen=True, slots=True)
 class Dato:
     """Un dato duro de datos.json: valor, unidad, fecha, fuente y URL."""
