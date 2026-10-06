@@ -283,36 +283,34 @@ Avisos (no bloquean, pero aparecen en el resumen):
 
 ## 16. Git y commits
 
-Tengo poca experiencia con git, así que sigue estas reglas y **explícame en una línea cada comando de git no trivial** que ejecutes. Copia estas reglas en `CLAUDE.md` para que se apliquen en todas las sesiones.
+Tengo poca experiencia con git. **Yo hago todos los commits, el push y los Pull Requests — tú nunca ejecutas `git commit`, `git push` ni `gh pr create`.** Tu trabajo es generar el código ya listo para commitear y explicármelo. Copia estas reglas en `CLAUDE.md` para que se apliquen en todas las sesiones.
 
-**Ramas**
-- `main` siempre funciona: tests en verde y sin código a medias.
-- Cada fase o funcionalidad va en su propia rama: `feat/fase-0-viabilidad`, `feat/fetch-data`, `fix/validacion-enlaces`...
-- Al terminar una rama, abre un Pull Request con `gh pr create` y un resumen claro de qué cambia y cómo se ha probado. **Yo lo reviso y lo fusiono**; no fusiones a `main` sin mi confirmación.
-- Los commits de datos semanales siguen la estrategia de ramas acordada en la Fase 0.
-
-**Commits**
-- Formato Conventional Commits, con el tipo en inglés y la descripción en español, en imperativo y en menos de 72 caracteres:
+**División del trabajo por funcionalidad**
+- Divide la implementación en unidades pequeñas, cada una equivalente a un commit (p. ej. "cliente HTTP de Buttondown", "validación de cifras contra datos.json", "renderizado de la tabla de mercados"). Una unidad = un cambio lógico; si necesitarías un "y" para describirla, sepárala en dos.
+- Para cada unidad: indícame en qué **rama** trabajar (`feat/fase-0-viabilidad`, `feat/fetch-data`, `fix/validacion-enlaces`...; `main` siempre debe quedar con tests en verde y sin código a medias), crea o deja los archivos listos con `Write`/`Edit`, corre los tests si existen, y **antes de que yo commitee** dame una explicación que cubra:
+  - **Qué es:** qué archivo(s) cambian y qué hacen.
+  - **Cómo funciona:** la lógica o el flujo clave, sin explicar lo obvio.
+  - **Qué aporta:** a qué funcionalidad de la spec corresponde y cómo encaja en la arquitectura del repo (sección 4).
+- Después de tu explicación, propónme el mensaje de commit (Conventional Commits, tipo en inglés y descripción en español, imperativo, menos de 72 caracteres) para que lo use tal cual o lo ajuste:
   - `feat: añade descarga del IPC del INE`
   - `fix: corrige el redondeo del EUR/USD en la tabla`
   - `test: cubre los enlaces caídos en validate.py`
   - `docs: explica cómo crear la tarea programada`
   - `refactor:`, `chore:` (dependencias, configuración)
   - `data(2026-S41): informe semanal` para los commits de la tarea programada
-- Un commit por cambio lógico: si el mensaje necesita un "y", probablemente son dos commits.
-- Haz commit cada vez que una unidad de trabajo funcione y sus tests pasen; no acumules horas de cambios.
-- Si el porqué no es obvio, añade un cuerpo al commit explicando el motivo.
-- Haz push de la rama al terminar cada paso del plan, para que haya copia en GitHub.
+- Si el porqué de un cambio no es obvio, sugiéreme también un cuerpo para el commit explicando el motivo.
+- Cuando termines una rama completa, dime que está lista para que yo abra el Pull Request, y propónme el resumen de qué cambia y cómo se ha probado para pegarlo en la descripción del PR. **Yo lo reviso y lo fusiono**; nunca fusiones a `main` por tu cuenta (de hecho, nunca deberías necesitar hacerlo, porque no ejecutas el merge).
+- Los commits de datos semanales (de la tarea programada en la nube) son la única excepción: como se generan en una sesión en la que no estoy presente para commitear yo, esa sesión sí hace su propio commit/push siguiendo la estrategia de ramas acordada en la Fase 0; documenta esto explícitamente en `TAREA_SEMANAL.md`.
 
 **Seguridad**
-- Nunca subas claves ni `.env`. El `.gitignore` debe incluir `.env`, `__pycache__/`, entornos virtuales y archivos del sistema.
-- Antes de cada commit, revisa `git diff --staged` en busca de claves o datos personales. Si detectas algo sospechoso, para y avísame.
+- Nunca generes ni dejes en el working tree claves ni `.env`. El `.gitignore` debe incluir `.env`, `__pycache__/`, entornos virtuales y archivos del sistema.
+- Antes de decirme que algo está listo para commitear, revisa tú mismo el contenido de los archivos nuevos o modificados en busca de claves o datos personales. Si detectas algo sospechoso, para y avísame en vez de darme la explicación de commit.
 - Si alguna vez se sube una clave por error, avísame de inmediato: hay que revocarla, no basta con borrarla del historial.
 
 **Nunca sin mi permiso explícito**
-- `git push --force`, `git reset --hard`, reescribir historial publicado o borrar ramas remotas.
+- `git push --force`, `git reset --hard`, reescribir historial publicado o borrar ramas remotas (y, en general, no deberías ejecutar ningún comando de git que modifique el repositorio salvo lectura: `status`, `diff`, `log`).
 
 ## Valores pendientes
 
-- `{NOMBRE}`: nombre de la newsletter (provisional: "Briefing semanal").
-- Secrets necesarios: `BUTTONDOWN_API_KEY` y, si se usa FRED, `FRED_API_KEY`.
+- `{NOMBRE}`: **"Brújula Semanal"** — una brújula orienta pero no dice a dónde ir, igual que este informe: da contexto, nunca consejo de inversión.
+- Secrets necesarios: `BUTTONDOWN_API_KEY` y `FRED_API_KEY`. En el *environment* de la Routine (plan Pro/Max), guárdalos como **API credentials** en vez de variables de entorno planas, para que no sean visibles dentro de la sesión (ver Fase 0).
