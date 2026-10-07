@@ -4,6 +4,12 @@
 
 Se ejecuta el **domingo hacia mediodía (hora de Madrid)**, para que el dueño del proyecto revise el borrador y lo envíe por la tarde.
 
+El entorno de la Routine no trae las dependencias preinstaladas (es efímero, se reconstruye en cada ejecución). Antes de cualquier otro paso:
+
+```
+pip install -e .
+```
+
 ## 0. Calcula la semana
 
 Antes de nada, calcula la semana ISO actual (formato `AAAA-Sww`) y su periodo (lunes a domingo). Todo lo que sigue usa esa `{semana}`, `{inicio}` y `{fin}`.
@@ -71,6 +77,8 @@ git add data/{semana}/
 git commit -m "data({semana}): informe semanal"
 git push -u origin claude/archivo-semanal
 ```
+
+La sesión puede arrancar en otra rama por defecto (p. ej. una `claude/`-prefijada autogenerada) — ignórala. El `checkout` explícito de arriba manda siempre: el commit semanal va a `claude/archivo-semanal`, nunca a la rama que proponga el sistema al iniciar.
 
 El dueño del proyecto fusiona esta rama a `main` periódicamente, a su ritmo — no abras un Pull Request ni intentes fusionarla tú.
 

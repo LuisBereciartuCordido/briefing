@@ -156,7 +156,7 @@ Cada **noticia**:
 
 ## 8. Flujo semanal (`TAREA_SEMANAL.md`)
 
-`TAREA_SEMANAL.md` lleva las instrucciones ejecutables; este archivo solo las convenciones. La Routine la ejecuta un prompt corto: "Lee y ejecuta TAREA_SEMANAL.md", el domingo hacia mediodía (hora de Madrid).
+`TAREA_SEMANAL.md` lleva las instrucciones ejecutables; este archivo solo las convenciones. La Routine la ejecuta un prompt corto: "Lee y ejecuta TAREA_SEMANAL.md", el domingo hacia mediodía (hora de Madrid). El entorno es efímero (no trae las dependencias preinstaladas), así que lo primero que hace `TAREA_SEMANAL.md` es `pip install -e .`.
 
 1. `fetch_data.py` → `datos.json`. Si falla, detenerse.
 2. **Redacción, un módulo cada vez:** investigar con búsqueda web respetando `fuentes.yaml`, escribir cada módulo en `borrador.json` siguiendo `prompts/redactor.md` y `prompts/estilo.md`.
