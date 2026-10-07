@@ -26,9 +26,11 @@ AVISO_LEGAL = "Contenido informativo. No es asesoramiento financiero."
 INSTRUCCION_CONTEXTO_IA = "Copia este bloque y pégalo en tu asistente de IA para profundizar."
 
 PROMPT_SUGERIDO_IA = (
-    "Usa este contexto para explicarme en detalle [tema] y qué significa para "
-    "alguien que vive en España. Si algo no está en el contexto, búscalo en "
-    "fuentes fiables y dime cuáles son."
+    "Este es el contexto del briefing semanal de The Macrochip. Antes de nada, "
+    "pregúntame sobre qué tema de los incluidos quiero profundizar. Cuando te "
+    "lo diga, explícamelo en detalle y qué significa para alguien que vive en "
+    "España. Si algo no está en el contexto, búscalo en fuentes fiables y dime "
+    "cuáles son."
 )
 
 LIMITE_CONTEXTO_IA_CARACTERES = 6000
