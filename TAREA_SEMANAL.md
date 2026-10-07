@@ -63,7 +63,7 @@ Crea el borrador — **nunca lo envía**. Si falla (clave inválida, red caída.
 
 ## 8. Commit de la semana
 
-Esta es la única parte del proyecto donde tú (la sesión de la Routine) haces el commit y el push directamente — no hay nadie presente para hacerlo por ti. Es la excepción explícita a las reglas de git de `CLAUDE.md` (sección 16).
+Esta es la única parte del proyecto donde tú (la sesión de la Routine) haces el commit y el push directamente — no hay nadie presente para hacerlo por ti. Es la excepción explícita a las reglas de git de `CLAUDE.md` (sección 14).
 
 ```
 git checkout claude/archivo-semanal 2>/dev/null || git checkout -b claude/archivo-semanal

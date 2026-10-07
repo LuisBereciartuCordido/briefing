@@ -107,7 +107,7 @@ def test_renderizar_para_profundizar_omite_modulos_sin_novedades() -> None:
 
 
 def test_renderizar_para_profundizar_usa_el_titulo_del_modulo_no_el_id() -> None:
-    # Bug real (sección 15.4): usaba el id ("asia_china") en vez del título
+    # Bug real encontrado en pruebas locales (sección 13): usaba el id ("asia_china") en vez del título
     # ("Asia y China") que viene de modulos_cfg.
     informe = _informe_minimo_valido()
     informe["modulos"]["asia_china"] = {

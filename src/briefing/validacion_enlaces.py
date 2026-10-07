@@ -1,4 +1,4 @@
-"""Comprobación de enlaces caídos de informe.json (sección 12 de CLAUDE.md).
+"""Comprobación de enlaces caídos de informe.json (sección 10 de CLAUDE.md).
 
 Separado de validacion.py porque hace peticiones HTTP reales: así el resto
 de comprobaciones se pueden testear sin red, y esta se puede desactivar
@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 TIMEOUT_SEGUNDOS = 10
 INTENTOS = 2
 
-# Deliberadamente sin cabecera "User-Agent" propia (sección 15.4: se
+# Deliberadamente sin cabecera "User-Agent" propia (sección 6: se
 # comprobó en vivo que un valor como "Mozilla/5.0" —ni un navegador real
 # ni el user-agent por defecto de requests— hace que algunos CDN (p. ej.
 # fred.stlouisfed.org) dejen la conexión colgada en vez de responder,
@@ -29,7 +29,7 @@ INTENTOS = 2
 CABECERAS: dict[str, str] = {}
 
 # Códigos que normalmente significan "nos detectó como bot" o "paywall",
-# no que el enlace esté roto: se avisa, no se bloquea (sección 12).
+# no que el enlace esté roto: se avisa, no se bloquea (sección 10).
 CODIGOS_POSIBLE_BLOQUEO = {401, 403, 429, 999}
 
 

@@ -274,7 +274,7 @@ def test_fuente_antes_del_periodo_pero_reciente_no_da_error() -> None:
     # del 2026-10-02 es anterior al inicio del periodo, pero solo tiene 9
     # días de antigüedad respecto al cierre (10-11) — dentro del límite de
     # 10 días de prompts/redactor.md, así que no debería bloquear. Este es
-    # justo el caso real que encontró la prueba en local de la sección 15.4.
+    # justo el caso real que encontró la prueba en local (sección 13).
     informe = _informe_con(macro_global=[_noticia(fuentes=[_fuente(fecha="2026-10-02")])])
     assert validacion.validar_fechas_fuente(informe) == []
 

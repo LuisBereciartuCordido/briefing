@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Valida informe.json contra el esquema y las reglas de la sección 12 de CLAUDE.md.
+"""Valida informe.json contra el esquema y las reglas de la sección 10 de CLAUDE.md.
 
 Uso:
     python scripts/validate.py --semana AAAA-Sww [--sin-comprobar-enlaces]
@@ -52,7 +52,7 @@ def validar_informe(
     antiguedad_maxima_dias: int = 10,
     comprobar_enlaces: bool = True,
 ) -> ResultadoValidacion:
-    """Corre todas las comprobaciones de la sección 12 sobre un informe ya cargado."""
+    """Corre todas las comprobaciones de la sección 10 sobre un informe ya cargado."""
     resultado = ResultadoValidacion()
 
     errores_esquema = _errores_de_esquema(informe, esquema)
