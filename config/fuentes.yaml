@@ -2,28 +2,78 @@
 # (prompts/redactor.md) y para las comprobaciones de validate.py.
 #
 # Niveles de confianza (mismo criterio que prompts/redactor.md):
-#   1 = primarias: bancos centrales, organismos internacionales, estadística oficial.
-#   2 = agencias y prensa económica reconocida.
+#   1 = primarias: bancos centrales, organismos internacionales, estadística
+#       oficial, y mercados/bolsas para sus propios precios (no hay fuente
+#       "más primaria" que el propio mercado para lo que ocurrió en él).
+#   2 = agencias y prensa económica reconocida, y asociaciones/gremios del
+#       sector cuyos datos conviene poder contrastar (tienen un interés
+#       directo en el tema que reportan, a diferencia de un banco central
+#       o una bolsa neutral).
 #   3 = opinión y análisis. Solo como contexto, siempre confianza = interpretacion.
+#
+# validate.py comprueba el dominio de cada fuente contra esta lista
+# (incluyendo subdominios: "europa.eu" cubre también "ecb.europa.eu" o
+# "commission.europa.eu"). Un dominio no catalogado no bloquea — puede ser
+# una fuente nueva legítima — pero sale como aviso para revisarlo y, si
+# corresponde, añadirlo aquí.
 #
 # "similares" de la spec original: añade aquí cualquier medio que cumpla el
 # mismo nivel de rigor; no hace falta tocar código para ampliar la lista.
 niveles:
   1:
-    descripcion: "Primarias: bancos centrales, organismos internacionales, estadística oficial."
+    descripcion: "Primarias: bancos centrales, organismos internacionales, estadística oficial, mercados para sus propios precios."
     dominios:
-      - ecb.europa.eu
+      # Eurosistema — europa.eu cubre todas las instituciones de la UE
+      # (Comisión, BCE, Eurostat, Consejo...) como subdominios: ec.europa.eu,
+      # ecb.europa.eu, commission.europa.eu, data-api.ecb.europa.eu, etc.
+      - europa.eu
+      - bundesbank.de # Alemania
+      - banque-france.fr # Francia
+      - bankofengland.co.uk
+      - snb.ch # Suiza
+      # Reserva Federal (EE. UU.): el Board y dos bancos regionales que
+      # publican análisis propios con peso real (fred.stlouisfed.org, que
+      # ya usamos como fuente de datos, es subdominio de stlouisfed.org).
       - federalreserve.gov
+      - stlouisfed.org
+      - newyorkfed.org
+      # Otros bancos centrales relevantes para los módulos del proyecto
       - bankofjapan.or.jp
-      - pbc.gov.cn
+      - pbc.gov.cn # China
+      - rbi.org.in # India
+      - bcb.gov.br # Brasil
+      - bok.or.kr # Corea del Sur
+      - mas.gov.sg # Singapur
+      - resbank.co.za # Sudáfrica
+      - tcmb.gov.tr # Turquía
+      - banxico.org.mx # México
+      # Organismos internacionales
       - imf.org
-      - bis.org
+      - bis.org # Bank for International Settlements (bancos centrales)
       - oecd.org
-      - ec.europa.eu
-      - ine.es
+      - worldbank.org
+      - wto.org
+      - un.org
+      - nato.int
+      - iea.org # energía
+      - opec.org
+      # EE. UU.: estadística y agencias oficiales
+      - ine.es # España
       - bls.gov
       - bea.gov
       - home.treasury.gov
+      - eia.gov # estadística energética
+      - sec.gov # filings de empresas cotizadas (relevante para Tecnología e IA)
+      - bis.doc.gov # Bureau of Industry and Security (Dpto. de Comercio,
+        # controles de exportación) — NO confundir con bis.org (arriba),
+        # organismo completamente distinto pese a la misma sigla.
+      # Estadística oficial de otros países
+      - ons.gov.uk # Reino Unido
+      - stats.gov.cn # China
+      - stat.go.jp # Japón
+      - ibge.gov.br # Brasil
+      # Mercados/bolsas, para sus propios precios
+      - lme.com # London Metal Exchange (metales)
 
   2:
     descripcion: "Agencias y prensa económica reconocida."
@@ -40,6 +90,12 @@ niveles:
       - aljazeera.com
       - nbcnews.com
       - cnbc.com
+      - apnews.com
+      - bbc.com
+      - scmp.com
+      - theguardian.com
+      - politico.eu
+      - gold.org # World Gold Council: gremio del sector, no mercado neutral
 
   3:
     descripcion: "Opinión y análisis. Solo como contexto, confianza = interpretacion."

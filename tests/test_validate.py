@@ -2,6 +2,8 @@ import copy
 import json
 from pathlib import Path
 
+import yaml
+
 import validate
 
 from .test_schema import _informe_minimo_valido
@@ -9,6 +11,10 @@ from .test_schema import _informe_minimo_valido
 SCHEMA = json.loads(validate.SCHEMA_PATH.read_text())
 MODULOS_CFG = [{"id": "eeuu", "limite_palabras": 110}]
 PALABRAS: dict[str, list[str]] = {"sensacionalismo": [], "recomendacion": []}
+# El fuentes.yaml real: así este test cubre también que _informe_minimo_valido()
+# (fuente BCE, dominio ecb.europa.eu) siga validando con la lista real tras
+# ampliarla, en vez de depender de una lista de prueba separada.
+FUENTES_CFG = yaml.safe_load((validate.CONFIG_DIR / "fuentes.yaml").read_text())
 
 
 def test_informe_valido_no_tiene_errores() -> None:
@@ -21,6 +27,7 @@ def test_informe_valido_no_tiene_errores() -> None:
         esquema=SCHEMA,
         palabras=PALABRAS,
         modulos_cfg=MODULOS_CFG,
+        fuentes_cfg=FUENTES_CFG,
         comprobar_enlaces=False,
     )
 
@@ -38,6 +45,7 @@ def test_error_de_esquema_no_sigue_con_las_demas_comprobaciones() -> None:
         esquema=SCHEMA,
         palabras=PALABRAS,
         modulos_cfg=MODULOS_CFG,
+        fuentes_cfg=FUENTES_CFG,
         comprobar_enlaces=False,
     )
 
@@ -55,6 +63,7 @@ def test_titular_con_id_inexistente_bloquea_un_informe_por_lo_demas_valido() -> 
         esquema=SCHEMA,
         palabras=PALABRAS,
         modulos_cfg=MODULOS_CFG,
+        fuentes_cfg=FUENTES_CFG,
         comprobar_enlaces=False,
     )
 
@@ -72,6 +81,7 @@ def test_palabra_prohibida_bloquea_un_informe_por_lo_demas_valido() -> None:
         esquema=SCHEMA,
         palabras={"sensacionalismo": ["pánico"], "recomendacion": []},
         modulos_cfg=MODULOS_CFG,
+        fuentes_cfg=FUENTES_CFG,
         comprobar_enlaces=False,
     )
 

@@ -32,6 +32,17 @@ def _informe_con(**overrides) -> dict:
     return informe
 
 
+# fuentes.yaml de prueba, pequeño y estable: no depende del contenido real
+# (que puede crecer) para que estos tests no se rompan cuando se amplíe.
+FUENTES_CFG = {
+    "niveles": {
+        1: {"dominios": ["europa.eu"]},
+        2: {"dominios": ["reuters.com", "bloomberg.com"]},
+        3: {"dominios": ["project-syndicate.org"]},
+    }
+}
+
+
 # --- _parsear_numero -------------------------------------------------------
 
 
@@ -84,16 +95,21 @@ def test_titular_puede_referenciar_una_noticia_de_un_modulo() -> None:
 
 def test_confirmado_con_una_fuente_nivel_1_no_da_error() -> None:
     informe = _informe_con(
-        macro_global=[_noticia(confianza="confirmado", fuentes=[_fuente(nivel=1)])]
+        macro_global=[
+            _noticia(
+                confianza="confirmado",
+                fuentes=[_fuente(url="https://www.ecb.europa.eu/x", nivel=1)],
+            )
+        ]
     )
-    assert validacion.validar_confianza_y_fuentes(informe) == []
+    assert validacion.validar_confianza_y_fuentes(informe, FUENTES_CFG) == []
 
 
 def test_confirmado_con_una_sola_fuente_nivel_2_da_error() -> None:
     informe = _informe_con(
         macro_global=[_noticia(confianza="confirmado", fuentes=[_fuente(nivel=2)])]
     )
-    assert len(validacion.validar_confianza_y_fuentes(informe)) == 1
+    assert len(validacion.validar_confianza_y_fuentes(informe, FUENTES_CFG)) == 1
 
 
 def test_confirmado_con_dos_fuentes_mismo_dominio_da_error() -> None:
@@ -108,7 +124,7 @@ def test_confirmado_con_dos_fuentes_mismo_dominio_da_error() -> None:
             )
         ]
     )
-    assert len(validacion.validar_confianza_y_fuentes(informe)) == 1
+    assert len(validacion.validar_confianza_y_fuentes(informe, FUENTES_CFG)) == 1
 
 
 def test_confirmado_con_dos_fuentes_dominios_distintos_no_da_error() -> None:
@@ -123,7 +139,93 @@ def test_confirmado_con_dos_fuentes_dominios_distintos_no_da_error() -> None:
             )
         ]
     )
-    assert validacion.validar_confianza_y_fuentes(informe) == []
+    assert validacion.validar_confianza_y_fuentes(informe, FUENTES_CFG) == []
+
+
+def test_confirmado_con_nivel_1_autodeclarado_pero_sin_catalogar_da_error() -> None:
+    # El cambio clave de este bloque: antes, que la propia noticia se
+    # autodeclarase nivel=1 bastaba para confirmar, sin comprobar nada
+    # contra fuentes.yaml. Un dominio no catalogado ya no puede, por sí
+    # solo, confirmar una noticia aunque diga nivel=1.
+    informe = _informe_con(
+        macro_global=[
+            _noticia(
+                confianza="confirmado",
+                fuentes=[_fuente(url="https://www.mediodesconocido.com/a", nivel=1)],
+            )
+        ]
+    )
+    assert len(validacion.validar_confianza_y_fuentes(informe, FUENTES_CFG)) == 1
+
+
+# --- validar_nivel_de_fuentes -----------------------------------------------
+
+
+def test_nivel_declarado_coincide_con_el_catalogado_no_da_error() -> None:
+    informe = _informe_con(
+        macro_global=[_noticia(fuentes=[_fuente(url="https://www.reuters.com/a", nivel=2)])]
+    )
+    assert validacion.validar_nivel_de_fuentes(informe, FUENTES_CFG) == []
+
+
+def test_nivel_declarado_distinto_del_catalogado_da_error() -> None:
+    informe = _informe_con(
+        macro_global=[_noticia(fuentes=[_fuente(url="https://www.reuters.com/a", nivel=1)])]
+    )
+    assert len(validacion.validar_nivel_de_fuentes(informe, FUENTES_CFG)) == 1
+
+
+def test_nivel_declarado_para_dominio_no_catalogado_no_da_error() -> None:
+    # Un dominio no catalogado no es error aquí: puede ser una fuente nueva
+    # legítima (lo cubre, por separado, avisos_fuentes_no_catalogadas).
+    informe = _informe_con(
+        macro_global=[
+            _noticia(fuentes=[_fuente(url="https://www.mediodesconocido.com/a", nivel=1)])
+        ]
+    )
+    assert validacion.validar_nivel_de_fuentes(informe, FUENTES_CFG) == []
+
+
+def test_nivel_catalogado_coincide_tambien_por_subdominio() -> None:
+    informe = _informe_con(
+        macro_global=[_noticia(fuentes=[_fuente(url="https://www.ecb.europa.eu/x", nivel=1)])]
+    )
+    assert validacion.validar_nivel_de_fuentes(informe, FUENTES_CFG) == []
+
+
+# --- avisos_fuentes_no_catalogadas -------------------------------------------
+
+
+def test_dominio_catalogado_no_genera_aviso() -> None:
+    informe = _informe_con(
+        macro_global=[_noticia(fuentes=[_fuente(url="https://www.reuters.com/a", nivel=2)])]
+    )
+    assert validacion.avisos_fuentes_no_catalogadas(informe, FUENTES_CFG) == []
+
+
+def test_dominio_no_catalogado_genera_aviso() -> None:
+    informe = _informe_con(
+        macro_global=[
+            _noticia(fuentes=[_fuente(url="https://www.mediodesconocido.com/a", nivel=2)])
+        ]
+    )
+    assert len(validacion.avisos_fuentes_no_catalogadas(informe, FUENTES_CFG)) == 1
+
+
+def test_dominio_no_catalogado_repetido_avisa_una_sola_vez() -> None:
+    informe = _informe_con(
+        macro_global=[
+            _noticia(
+                id_="2026-S41-x-01",
+                fuentes=[_fuente(url="https://www.mediodesconocido.com/a", nivel=2)],
+            ),
+            _noticia(
+                id_="2026-S41-x-02",
+                fuentes=[_fuente(url="https://www.mediodesconocido.com/b", nivel=2)],
+            ),
+        ]
+    )
+    assert len(validacion.avisos_fuentes_no_catalogadas(informe, FUENTES_CFG)) == 1
 
 
 # --- validar_cifras ---------------------------------------------------------
