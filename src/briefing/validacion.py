@@ -273,6 +273,22 @@ def avisos_limite_palabras(informe: dict, modulos_cfg: list[dict]) -> list[str]:
     return avisos
 
 
+def avisos_concepto_semana_largo(informe: dict, limite_palabras: int = 120) -> list[str]:
+    """Avisa si el texto de concepto_semana se pasa de las "4-5 líneas" de la sección 5.
+
+    A diferencia de los módulos (avisos_limite_palabras, con su propio
+    límite en config/modulos.yaml) o el titular (avisos_titular_largo),
+    concepto_semana no tenía ninguna comprobación de longitud pese a que
+    CLAUDE.md sí fija una — 120 palabras es una estimación en la misma
+    proporción que el límite de los módulos (110 palabras para 3-5
+    líneas).
+    """
+    n_palabras = len(informe["concepto_semana"]["texto"].split())
+    if n_palabras > limite_palabras:
+        return [f"concepto_semana: {n_palabras} palabras, supera el límite de {limite_palabras}"]
+    return []
+
+
 def avisos_concentracion_medios(informe: dict, umbral: float = 0.5) -> list[str]:
     """Avisa si más de `umbral` de las fuentes del informe son del mismo medio."""
     medios: dict[str, int] = {}
