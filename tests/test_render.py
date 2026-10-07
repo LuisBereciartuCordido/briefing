@@ -45,6 +45,22 @@ def test_formatear_variacion_negativa() -> None:
     assert render._formatear_variacion(90, 100) == "-10.00 %"
 
 
+def test_formatear_variacion_coloreada_en_verde_si_sube() -> None:
+    salida = render._formatear_variacion_coloreada(110, 100)
+    assert f'color:{render.COLOR_VARIACION_POSITIVA}' in salida
+    assert "+10.00 %" in salida
+
+
+def test_formatear_variacion_coloreada_en_rojo_si_baja() -> None:
+    salida = render._formatear_variacion_coloreada(90, 100)
+    assert f'color:{render.COLOR_VARIACION_NEGATIVA}' in salida
+    assert "-10.00 %" in salida
+
+
+def test_formatear_variacion_coloreada_sin_semana_anterior_no_colorea() -> None:
+    assert render._formatear_variacion_coloreada(100, None) == "—"
+
+
 def test_renderizar_lo_esencial() -> None:
     informe = {"lo_esencial": ["Primera cosa.", "Segunda cosa."]}
     salida = render.renderizar_lo_esencial(informe)
@@ -52,16 +68,17 @@ def test_renderizar_lo_esencial() -> None:
     assert "- Segunda cosa." in salida
 
 
-def test_renderizar_tabla_mercados_con_variacion() -> None:
+def test_renderizar_mercados_con_variacion() -> None:
     datos = {"sp500": {"valor": 7700.0}, "eur_usd": {"valor": 1.08}}
     anterior = {"sp500": {"valor": 7000.0}}
 
-    salida = render.renderizar_tabla_mercados(datos, anterior, MERCADOS_CFG)
+    salida = render.renderizar_mercados(datos, anterior, MERCADOS_CFG)
 
     assert "S&P 500" in salida
     assert "+10.00 %" in salida  # variación respecto a la semana anterior
     assert "—" in salida  # eur_usd no tiene semana anterior en este test
     assert "sin dato" in salida  # "oro" no está en `datos`
+    assert "|" not in salida  # lista, no tabla Markdown (sección 11)
 
 
 def test_renderizar_macro_global_incluye_emoji_de_confianza() -> None:
@@ -147,10 +164,12 @@ def test_renderizar_indice_no_promete_enlaces_de_ancla() -> None:
 
 def test_renderizar_titulo() -> None:
     informe = _informe_minimo_valido()
-    salida = render.renderizar_titulo(informe, "The Macrochip")
+    salida = render.renderizar_titulo(informe, "The Macrochip", "https://x.test/logo.png")
     assert "The Macrochip" in salida
     assert informe["titular"]["texto"] in salida
     assert "5 al 11 de octubre de 2026" in salida
+    assert 'src="https://x.test/logo.png"' in salida
+    assert f'width="{render.LOGO_ANCHO_PX}"' in salida
 
 
 def test_formatear_rango_fechas_mismo_mes() -> None:
@@ -230,6 +249,7 @@ def test_renderizar_informe_junta_todas_las_secciones_en_orden() -> None:
         mercados_cfg=MERCADOS_CFG,
         modulos_cfg=MODULOS_CFG,
         nombre_newsletter="The Macrochip",
+        logo_url="https://x.test/logo.png",
     )
 
     for titulo in (
@@ -261,5 +281,6 @@ def test_renderizar_informe_no_incluye_la_transparencia() -> None:
         mercados_cfg=MERCADOS_CFG,
         modulos_cfg=MODULOS_CFG,
         nombre_newsletter="The Macrochip",
+        logo_url="https://x.test/logo.png",
     )
     assert "Cómo se hizo este informe" not in salida

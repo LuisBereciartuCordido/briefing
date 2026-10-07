@@ -50,6 +50,11 @@ def test_general_yaml_tiene_nombre_newsletter() -> None:
     assert general["nombre_newsletter"]
 
 
+def test_general_yaml_tiene_logo_url() -> None:
+    general = yaml.safe_load((CONFIG_DIR / "general.yaml").read_text())
+    assert general["logo_url"].startswith("https://")
+
+
 def test_validacion_yaml_tiene_las_dos_listas_no_vacias() -> None:
     validacion = yaml.safe_load((CONFIG_DIR / "validacion.yaml").read_text())
 

@@ -4,3 +4,15 @@
 # asunto del borrador de Buttondown (publish.py, sección 8.7 de
 # CLAUDE.md: "{NOMBRE}: {titular}").
 nombre_newsletter: "The Macrochip"
+
+# Logo de cabecera del email. Subido una sola vez a Buttondown
+# (POST /v1/images, aloja en su S3 y devuelve una URL pública) — no se
+# vuelve a subir cada semana porque no cambia; render.py lo referencia
+# con un <img width="..."> explícito (ver LOGO_ANCHO_PX en render.py),
+# no con la sintaxis Markdown de imagen.
+# Fondo transparente (no blanco sólido: se veía como un bloque de color
+# distinto al del resto del email) y a alta resolución (802x248, ~3.6x
+# el ancho de visualización real): en una prueba real, algunos clientes
+# de correo estiraban la imagen más allá de su tamaño natural y se veía
+# pixelada; con más resolución de base y el ancho fijado, no pasa.
+logo_url: "https://assets.buttondown.email/images/a369ffe6-7e43-4ef3-bda2-5b0340683c7b.png"
