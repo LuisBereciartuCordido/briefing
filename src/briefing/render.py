@@ -1,4 +1,4 @@
-"""Renderiza informe.json (+ datos.json) a Markdown (sección 13 de CLAUDE.md)."""
+"""Renderiza informe.json (+ datos.json) a Markdown (sección 11 de CLAUDE.md)."""
 
 from __future__ import annotations
 
@@ -191,7 +191,7 @@ def renderizar_titulo(informe: dict, nombre_newsletter: str) -> str:
 def renderizar_contexto_ia(
     informe: dict, datos: dict, *, limite_caracteres: int = LIMITE_CONTEXTO_IA_CARACTERES
 ) -> str:
-    """Bloque de código copiable con el contexto en bruto (sección 13).
+    """Bloque de código copiable con el contexto en bruto (sección 11).
 
     Solo usa resúmenes propios (ya están en informe.json, nunca texto
     copiado de un artículo) y datos con su fecha y fuente — nunca un
@@ -237,7 +237,7 @@ def renderizar_contexto_ia(
 
 
 def renderizar_transparencia(informe: dict) -> str:
-    """Versión breve de "cómo se hizo este informe" (sección 13).
+    """Versión breve de "cómo se hizo este informe" (sección 11).
 
     De uso interno: scripts/render.py escribe esto en transparencia.md,
     nunca en informe.md — mostrarlo a todos los suscriptores resta

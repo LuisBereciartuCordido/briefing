@@ -32,6 +32,8 @@ Un único `informe.schema.json` es la fuente de verdad: el email, el paquete de 
 
 **Tests unitarios + una ejecución real de punta a punta.** Además de tests unitarios (lógica de validación, parseo de datos, llamadas HTTP mockeadas), el pipeline se probó completo con datos reales y un borrador real creado en Buttondown — eso es lo que saca a la luz los fallos de integración que un test aislado no ve.
 
+**`CLAUDE.md` se mantiene en español, no en inglés.** La redacción corre en una Routine de la suscripción Pro/Max (coste fijo, no facturado por token), así que el ahorro de tokens que da la tokenización BPE del inglés frente a otros idiomas no se traduce aquí en ahorro real — y sí tiene un coste: es el documento que más releo y mantengo. Si el flujo usara la API de Anthropic facturada por uso, sería la decisión correcta.
+
 ## Arquitectura
 
 ```
@@ -47,7 +49,7 @@ Las convenciones completas del proyecto — por qué cada decisión, qué se des
 
 ## Stack
 
-Python 3.11+, dependencias mínimas (`requests`, `PyYAML`, `jsonschema`), sin frameworks. 135 tests.
+Python 3.11+, dependencias mínimas (`requests`, `PyYAML`, `jsonschema`), sin frameworks. 143 tests.
 
 ## Ejecutarlo
 

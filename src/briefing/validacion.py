@@ -1,4 +1,4 @@
-"""Comprobaciones deterministas de informe.json (sección 12 de CLAUDE.md).
+"""Comprobaciones deterministas de informe.json (sección 10 de CLAUDE.md).
 
 Separa "errores" (bloquean la publicación) de "avisos" (no bloquean, pero
 se muestran en el resumen). La comprobación de enlaces caídos vive en

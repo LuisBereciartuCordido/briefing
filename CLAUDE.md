@@ -21,10 +21,13 @@ Newsletter semanal en español que explica, de forma veraz, clara y amena, el co
 
 ## 3. Viabilidad (confirmada en la Fase 0)
 
-- **Routines de Claude Code:** se crean en claude.ai/code/routines, corren como sesión completa (bash, Python, `WebSearch`/`WebFetch`) sin aprobaciones de permisos. El *environment* por defecto ("Trusted") solo permite tráfico de red a registros de paquetes — para que `fetch_data.py`/`publish.py` lleguen a las APIs reales hace falta un *environment* con red "Custom" listando sus dominios. `WebSearch`/`WebFetch` no pasan por esa red (van por la conexión con Anthropic), así que la investigación del redactor funciona igual en modo Trusted.
-- **Ramas:** una Routine empuja por defecto a una rama `claude/`-prefijada. Se usa `claude/archivo-semanal` como la rama fija donde la tarea semanal commitea (ver sección 16, es la única excepción a "Claude no commitea").
+- **Routines de Claude Code:** se crean en claude.ai/code/routines, corren como sesión completa (bash, Python, `WebSearch`/`WebFetch`) sin aprobaciones de permisos. El *environment* por defecto ("Trusted") solo permite tráfico de red a registros de paquetes. `WebSearch`/`WebFetch` no pasan por esa red bajo ningún modo (van por la conexión con Anthropic), así que la investigación del redactor funciona igual sea cual sea la red del *environment*.
+- **Red del *environment* de producción: Full.** Para que `fetch_data.py`/`publish.py` lleguen a las APIs reales (BCE, Eurostat, INE, FRED, Yahoo Finance, Buttondown) hacía falta más que "Trusted". Se descartó "Custom" (listar dominios a mano) por el mantenimiento de mantenerla sincronizada con cualquier cambio de API, y se optó por "Full". El riesgo real que esto abre no es de red — es que el redactor cite una fuente con más nivel de confianza del que le corresponde (p. ej. un blog cualquiera autodeclarado nivel 1), y eso no lo arregla restringir dominios a nivel de red (`WebSearch`/`WebFetch` no pasan por ahí de todas formas). Lo arregla `validar_nivel_de_fuentes`/`avisos_fuentes_no_catalogadas` en `validate.py` (sección 10), que cruzan el nivel declarado de cada fuente contra `config/fuentes.yaml`.
+- **Ramas:** una Routine empuja por defecto a una rama `claude/`-prefijada. Se usa `claude/archivo-semanal` como la rama fija donde la tarea semanal commitea (ver sección 14, es la única excepción a "Claude no commitea").
 - **Buttondown:** `POST https://api.buttondown.com/v1/emails` con `Authorization: Token $BUTTONDOWN_API_KEY`, `status: "draft"`, cuerpo en Markdown — disponible en el plan gratuito.
 - **APIs de datos:** BCE y Eurostat sin clave; INE sin clave; FRED con clave gratuita. Mercados: ver sección 6.
+- **Secrets de la Routine:** no todas las claves se guardan igual. `BUTTONDOWN_API_KEY` va como **API credential** (cabecera `Authorization`, prefijo `Token`, host `api.buttondown.com`, ruta `/v1/emails`), porque Buttondown se autentica por cabecera. `FRED_API_KEY` va como **variable de entorno normal**, porque FRED espera la clave como parámetro de la URL (`?api_key=...`) y las API credentials solo pueden inyectar cabeceras, no *query params*.
+- **Conectores:** la Routine de producción no lleva ninguno activo (se quitan los que vienen por defecto). Ninguno hace falta para este flujo, y cualquier conector activo es superficie de escritura que Claude puede usar sin preguntar durante la ejecución.
 
 ## 4. Arquitectura del repositorio
 
@@ -32,7 +35,7 @@ Newsletter semanal en español que explica, de forma veraz, clara y amena, el co
 newsletter/
 ├── CLAUDE.md                  # Este archivo: convenciones + estado actual
 ├── TAREA_SEMANAL.md           # Instrucciones para la Routine semanal
-├── README.md                  # Instalación, secrets, cómo crear la Routine
+├── README.md                  # Qué es el proyecto, el pipeline, decisiones de ingeniería
 ├── config/
 │   ├── fuentes.yaml           # Dominios por nivel, antigüedad máxima
 │   ├── modulos.yaml           # Módulos, orden, límite de palabras
@@ -89,7 +92,7 @@ EE. UU. · Europa · Asia y China · Emergentes · Energía y materias primas (i
 4. **Concepto de la semana:** explicación en 4-5 líneas de un concepto que aparezca en el informe, con un `id` para enlazarlo en el futuro con un curso para principiantes.
 5. **Perspectiva de largo plazo:** qué de esta semana es estructural (años) y qué es ruido (días).
 6. **Para profundizar:** enlaces agrupados por módulo.
-7. **Paquete de contexto para IA** (sección 13).
+7. **Paquete de contexto para IA** (sección 11).
 8. **Aviso fijo:** "Contenido informativo. No es asesoramiento financiero."
 
 **Longitud del cuerpo principal (puntos 1-6):** lectura de 5 a 7 minutos. Límite de palabras por módulo en `modulos.yaml`.
@@ -147,7 +150,7 @@ Cada **noticia**:
 
 - `hilo_id` agrupa la misma historia entre semanas. Antes de asignarlo, el redactor revisa los `hilo_id` de las últimas 4 semanas en `data/` y los reutiliza si es la misma historia.
 - `cifras[].ref_datos` permite a `validate.py` comprobar los números contra `datos.json`.
-- `fuentes[].contexto_historico` (opcional, por defecto `false`): marca una fuente citada deliberadamente como contexto histórico aunque su fecha caiga fuera de la ventana de antigüedad permitida (sección 12). Sin este campo no había forma de declarar esa excepción.
+- `fuentes[].contexto_historico` (opcional, por defecto `false`): marca una fuente citada deliberadamente como contexto histórico aunque su fecha caiga fuera de la ventana de antigüedad permitida (sección 10). Sin este campo no había forma de declarar esa excepción.
 - `titular.noticia_id` debe apuntar a un `id` real de alguna noticia del informe; `validate.py` lo comprueba.
 - El esquema exige al menos una noticia en un módulo cuando `sin_novedades` es `false` (si no hay novedades, se declara explícitamente en vez de dejar la lista vacía).
 
@@ -162,7 +165,7 @@ Cada **noticia**:
 5. `validate.py`, máximo 2 intentos. Si persiste el error, detenerse sin publicar (queda en `log.json`).
 6. `render.py` → `informe.md` (público) + `transparencia.md` (interno).
 7. `publish.py` → borrador en Buttondown, asunto `"{NOMBRE}: {titular}"`.
-8. Commit de `data/<semana>/` a la rama `claude/archivo-semanal` — la única vez que Claude commitea y pushea directamente (sección 16).
+8. Commit de `data/<semana>/` a la rama `claude/archivo-semanal` — la única vez que Claude commitea y pushea directamente (sección 14).
 9. Resumen breve: módulos cubiertos, fuentes, avisos del validador, enlace al borrador.
 
 ## 9. Prompts de criterio
@@ -177,13 +180,14 @@ El contenido completo vive en sus propios archivos — no se duplica aquí para 
 
 Errores que bloquean la publicación:
 - `informe.json` no cumple el esquema (incluye: `titular.noticia_id` inexistente, módulo `sin_novedades: false` sin noticias).
-- `confianza = confirmado` con menos de 2 fuentes de dominios distintos y ninguna de nivel 1.
+- `confianza = confirmado` con menos de 2 fuentes de dominios distintos y ninguna catalogada como nivel 1 en `config/fuentes.yaml`. Un dominio no catalogado no cuenta como nivel 1 aunque la propia noticia lo declare así — tiene que ser un dominio *realmente* catalogado.
+- El nivel que declara una fuente no coincide con el nivel catalogado para su dominio en `config/fuentes.yaml` (la comprobación es por subdominio: `ecb.europa.eu` coincide con el catalogado `europa.eu`).
 - Un enlace que no responde tras reintentos. Si un medio bloquea bots o tiene paywall, es un **aviso**, no un error.
 - Una cifra con `ref_datos` que no coincide con `datos.json`.
 - Una fuente más antigua que `antiguedad_maxima_dias` (`config/fuentes.yaml`, 10 por defecto) **respecto al cierre del periodo** y sin `contexto_historico: true`. No exige que la fecha caiga dentro del periodo exacto: una noticia del lunes puede citar perfectamente un artículo de días antes.
 - Una noticia con palabras de `config/validacion.yaml` (sensacionalismo o recomendación).
 
-Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % de las fuentes de un solo medio; módulo sin ninguna fuente de nivel 1 o 2.
+Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % de las fuentes de un solo medio; módulo sin ninguna fuente de nivel 1 o 2; un dominio citado que no está catalogado en `config/fuentes.yaml` (puede ser una fuente nueva legítima — el aviso es para revisarla y, si corresponde, añadirla).
 
 `validate.py` escribe siempre sus hallazgos en `data/<semana>/log.json`, bajo la clave `"validacion"`, sin pisar el resto de contenido que el archivo ya tuviera. `fuentes_descartadas` y `cambios_verificador` no se duplican ahí: ya son campos de `informe.json`, y de ahí los lee `render.py` para `transparencia.md`.
 
@@ -212,7 +216,7 @@ Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % d
 
 ## 13. Cómo seguimos trabajando
 
-1. Para una funcionalidad o cambio nuevo: plan corto si hace falta decidir algo no obvio, implementación por partes pequeñas con tests, siguiendo las reglas de git de la sección 16.
+1. Para una funcionalidad o cambio nuevo: plan corto si hace falta decidir algo no obvio, implementación por partes pequeñas con tests, siguiendo las reglas de git de la sección 14.
 2. Antes de un cambio que afecte al flujo real, probarlo en local (`scripts/run_week.sh`, o los scripts por separado) antes de depender de que lo ejecute la Routine.
 3. Si una instrucción de este documento resulta imposible, contradictoria o claramente mejorable al implementarla: decirlo antes de implementarla, no en silencio.
 

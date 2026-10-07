@@ -30,7 +30,7 @@ CABECERAS = {"User-Agent": "Mozilla/5.0"}
 
 # id de mercados.yaml -> (ticker de Yahoo, unidad). nikkei225 es el índice
 # real (puntos); oro es un futuro en USD/onza; los tres MSCI son ETFs
-# (sección 15.4: un ETF cotiza en dólares por participación, no en
+# (sección 13: un ETF cotiza en dólares por participación, no en
 # "puntos" — llamarlo así sería un dato incorrecto, no solo un matiz de
 # formato), así que su unidad es USD, igual que ya refleja
 # config/mercados.yaml.
