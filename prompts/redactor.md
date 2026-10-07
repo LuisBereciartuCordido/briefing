@@ -46,4 +46,6 @@ Al terminar todos los módulos, elige la noticia más remarcable del conjunto (d
 
 "Llamativo" no es "exagerado": sigue valiendo la prohibición de sensacionalismo de `prompts/estilo.md`. Un titular puede ser interesante siendo exacto.
 
+Máximo ~60 caracteres. El titular se usa también como asunto del email (`"{NOMBRE}: {titular}"`); uno más largo que eso se corta en varios clientes de correo. `validate.py` lo avisa (no bloquea) si se pasa.
+
 Sigue además `prompts/estilo.md`. Escribe la salida en el formato de `schema/informe.schema.json`.

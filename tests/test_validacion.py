@@ -90,6 +90,37 @@ def test_titular_puede_referenciar_una_noticia_de_un_modulo() -> None:
     assert validacion.validar_titular(informe) == []
 
 
+# --- avisos_titular_largo -----------------------------------------------
+
+
+def test_titular_corto_no_avisa() -> None:
+    informe = _informe_con(macro_global=[_noticia(id_="2026-S41-macro-01")])
+    informe["titular"] = {"texto": "Algo pasó", "noticia_id": "2026-S41-macro-01"}
+    assert validacion.avisos_titular_largo(informe) == []
+
+
+def test_titular_largo_avisa() -> None:
+    informe = _informe_con(macro_global=[_noticia(id_="2026-S41-macro-01")])
+    informe["titular"] = {
+        # Caso real: 93 caracteres, se truncaba como asunto de email.
+        "texto": "Los huthíes golpean una instalación de Aramco mientras la Fed y el BCE esperan a final de mes",
+        "noticia_id": "2026-S41-macro-01",
+    }
+    assert len(validacion.avisos_titular_largo(informe)) == 1
+
+
+def test_titular_justo_en_el_limite_no_avisa() -> None:
+    informe = _informe_con(macro_global=[_noticia(id_="2026-S41-macro-01")])
+    informe["titular"] = {"texto": "x" * 60, "noticia_id": "2026-S41-macro-01"}
+    assert validacion.avisos_titular_largo(informe) == []
+
+
+def test_limite_de_titular_es_configurable() -> None:
+    informe = _informe_con(macro_global=[_noticia(id_="2026-S41-macro-01")])
+    informe["titular"] = {"texto": "x" * 20, "noticia_id": "2026-S41-macro-01"}
+    assert len(validacion.avisos_titular_largo(informe, limite_caracteres=10)) == 1
+
+
 # --- validar_confianza_y_fuentes ------------------------------------------
 
 

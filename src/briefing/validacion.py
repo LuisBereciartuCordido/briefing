@@ -128,6 +128,20 @@ def validar_titular(informe: dict) -> list[str]:
     return []
 
 
+def avisos_titular_largo(informe: dict, limite_caracteres: int = 60) -> list[str]:
+    """Avisa (no bloquea) si el titular se pasa de largo.
+
+    El titular se reutiliza tal cual como asunto del email
+    (`"{NOMBRE}: {titular}"`, scripts/publish.py) — uno demasiado largo se
+    trunca en varios clientes de correo. Es solo un aviso, no un error: es
+    un problema de estilo, no de corrección del contenido.
+    """
+    texto = informe["titular"]["texto"]
+    if len(texto) > limite_caracteres:
+        return [f"titular.texto: {len(texto)} caracteres, supera el límite de {limite_caracteres}"]
+    return []
+
+
 def _parsear_numero(texto: str) -> float:
     """Extrae el primer número de un texto.
 
