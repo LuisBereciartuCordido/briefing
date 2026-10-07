@@ -187,7 +187,7 @@ Errores que bloquean la publicación:
 - Una fuente más antigua que `antiguedad_maxima_dias` (`config/fuentes.yaml`, 10 por defecto) **respecto al cierre del periodo** y sin `contexto_historico: true`. No exige que la fecha caiga dentro del periodo exacto: una noticia del lunes puede citar perfectamente un artículo de días antes.
 - Una noticia con palabras de `config/validacion.yaml` (sensacionalismo o recomendación).
 
-Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % de las fuentes de un solo medio; módulo sin ninguna fuente de nivel 1 o 2; un dominio citado que no está catalogado en `config/fuentes.yaml` (puede ser una fuente nueva legítima — el aviso es para revisarla y, si corresponde, añadirla); `titular.texto` de más de 60 caracteres (se reutiliza tal cual como asunto del email y se trunca en varios clientes de correo).
+Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % de las fuentes de un solo medio; módulo sin ninguna fuente de nivel 1 o 2; un dominio citado que no está catalogado en `config/fuentes.yaml` (puede ser una fuente nueva legítima — el aviso es para revisarla y, si corresponde, añadirla); `titular.texto` de más de 60 caracteres (se reutiliza tal cual como asunto del email y se trunca en varios clientes de correo); `concepto_semana.texto` de más de 120 palabras (sección 5: "4-5 líneas").
 
 `validate.py` escribe siempre sus hallazgos en `data/<semana>/log.json`, bajo la clave `"validacion"`, sin pisar el resto de contenido que el archivo ya tuviera. `fuentes_descartadas` y `cambios_verificador` no se duplican ahí: ya son campos de `informe.json`, y de ahí los lee `render.py` para `transparencia.md`.
 

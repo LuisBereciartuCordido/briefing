@@ -49,7 +49,7 @@ Las convenciones completas del proyecto — por qué cada decisión, qué se des
 
 ## Stack
 
-Python 3.11+, dependencias mínimas (`requests`, `PyYAML`, `jsonschema`), sin frameworks. 143 tests.
+Python 3.11+, dependencias mínimas (`requests`, `PyYAML`, `jsonschema`), sin frameworks, con tests unitarios.
 
 ## Ejecutarlo
 

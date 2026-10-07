@@ -77,6 +77,7 @@ def validar_informe(
     resultado.avisos.extend(validacion.avisos_modulo_sin_fuentes_fiables(informe))
     resultado.avisos.extend(validacion.avisos_fuentes_no_catalogadas(informe, fuentes_cfg))
     resultado.avisos.extend(validacion.avisos_titular_largo(informe))
+    resultado.avisos.extend(validacion.avisos_concepto_semana_largo(informe))
 
     if comprobar_enlaces:
         errores_enlaces, avisos_enlaces = comprobar_enlaces_informe(informe)

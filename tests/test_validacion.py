@@ -378,6 +378,26 @@ def test_modulo_sin_novedades_no_se_cuenta() -> None:
     assert validacion.avisos_limite_palabras(informe, MODULOS_CFG) == []
 
 
+# --- avisos_concepto_semana_largo --------------------------------------------
+
+
+def test_concepto_semana_corto_no_avisa() -> None:
+    informe = _informe_minimo_valido()  # el concepto de ejemplo tiene 9 palabras
+    assert validacion.avisos_concepto_semana_largo(informe) == []
+
+
+def test_concepto_semana_largo_avisa() -> None:
+    informe = _informe_minimo_valido()
+    informe["concepto_semana"]["texto"] = " ".join(["palabra"] * 121)
+    assert len(validacion.avisos_concepto_semana_largo(informe)) == 1
+
+
+def test_limite_de_concepto_semana_es_configurable() -> None:
+    informe = _informe_minimo_valido()
+    informe["concepto_semana"]["texto"] = " ".join(["palabra"] * 10)
+    assert len(validacion.avisos_concepto_semana_largo(informe, limite_palabras=5)) == 1
+
+
 # --- avisos_concentracion_medios --------------------------------------------
 
 
