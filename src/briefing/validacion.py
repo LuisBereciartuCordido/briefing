@@ -31,21 +31,86 @@ def _dominio(url: str) -> str:
     return urlparse(url).netloc.removeprefix("www.")
 
 
-def validar_confianza_y_fuentes(informe: dict) -> list[str]:
-    """confirmado exige >=2 fuentes de dominios distintos, o alguna de nivel 1."""
+def _nivel_catalogado(dominio: str, fuentes_cfg: dict) -> int | None:
+    """Nivel real de un dominio según fuentes.yaml, o None si no está catalogado.
+
+    Coincide también por subdominio: "ecb.europa.eu" coincide con el
+    catalogado "europa.eu", no solo por igualdad exacta (config/fuentes.yaml
+    documenta por qué: europa.eu cubre todas las instituciones de la UE).
+    """
+    for nivel, datos_nivel in fuentes_cfg["niveles"].items():
+        for catalogado in datos_nivel["dominios"]:
+            if dominio == catalogado or dominio.endswith("." + catalogado):
+                return nivel
+    return None
+
+
+def validar_confianza_y_fuentes(informe: dict, fuentes_cfg: dict) -> list[str]:
+    """confirmado exige >=2 fuentes de dominios distintos, o alguna de nivel 1 real.
+
+    "Nivel 1 real" = catalogado como tal en fuentes.yaml, no el `nivel` que
+    la propia noticia autodeclara: un dominio no catalogado no puede, por sí
+    solo, confirmar una noticia aunque diga nivel=1 (el mismatch entre nivel
+    declarado y nivel catalogado lo bloquea aparte validar_nivel_de_fuentes).
+    """
     errores = []
     for ubicacion, noticia in todas_las_noticias(informe):
         if noticia["confianza"] != "confirmado":
             continue
         fuentes = noticia["fuentes"]
         dominios_distintos = {_dominio(f["url"]) for f in fuentes}
-        hay_nivel_1 = any(f["nivel"] == 1 for f in fuentes)
-        if len(dominios_distintos) < 2 and not hay_nivel_1:
+        hay_nivel_1_real = any(
+            _nivel_catalogado(_dominio(f["url"]), fuentes_cfg) == 1 for f in fuentes
+        )
+        if len(dominios_distintos) < 2 and not hay_nivel_1_real:
             errores.append(
                 f"[{ubicacion}] {noticia['id']}: confianza=confirmado pero no tiene "
-                f"ni 2 fuentes de dominios distintos ni ninguna de nivel 1"
+                f"ni 2 fuentes de dominios distintos ni ninguna catalogada como nivel 1"
             )
     return errores
+
+
+def validar_nivel_de_fuentes(informe: dict, fuentes_cfg: dict) -> list[str]:
+    """El nivel que declara cada fuente debe coincidir con el de fuentes.yaml.
+
+    Sin esto, el esquema solo exige que `nivel` sea 1, 2 o 3 — nada impedía
+    que una noticia autodeclarase nivel=1 citando un dominio catalogado como
+    nivel 2 (o al revés). Un dominio no catalogado no es error aquí: eso lo
+    cubre avisos_fuentes_no_catalogadas, porque puede ser una fuente nueva
+    legítima que solo falta añadir a la lista.
+    """
+    errores = []
+    for ubicacion, noticia in todas_las_noticias(informe):
+        for fuente in noticia["fuentes"]:
+            dominio = _dominio(fuente["url"])
+            nivel_real = _nivel_catalogado(dominio, fuentes_cfg)
+            if nivel_real is not None and nivel_real != fuente["nivel"]:
+                errores.append(
+                    f"[{ubicacion}] {noticia['id']}: {dominio} está catalogado como "
+                    f"nivel {nivel_real} en fuentes.yaml, pero la fuente declara "
+                    f"nivel {fuente['nivel']}"
+                )
+    return errores
+
+
+def avisos_fuentes_no_catalogadas(informe: dict, fuentes_cfg: dict) -> list[str]:
+    """Aviso (no bloquea) por cada dominio citado que no está en fuentes.yaml.
+
+    Puede ser una fuente nueva legítima — por eso es aviso, no error — pero
+    conviene revisarla y, si corresponde, añadirla a fuentes.yaml en vez de
+    dejarla citada sin catalogar semana tras semana.
+    """
+    avisos = []
+    dominios_avisados: set[str] = set()
+    for _, noticia in todas_las_noticias(informe):
+        for fuente in noticia["fuentes"]:
+            dominio = _dominio(fuente["url"])
+            if dominio in dominios_avisados:
+                continue
+            if _nivel_catalogado(dominio, fuentes_cfg) is None:
+                avisos.append(f"{dominio}: dominio no catalogado en fuentes.yaml")
+                dominios_avisados.add(dominio)
+    return avisos
 
 
 def validar_titular(informe: dict) -> list[str]:

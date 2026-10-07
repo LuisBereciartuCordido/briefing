@@ -48,6 +48,7 @@ def validar_informe(
     esquema: dict,
     palabras: dict[str, list[str]],
     modulos_cfg: list[dict],
+    fuentes_cfg: dict,
     antiguedad_maxima_dias: int = 10,
     comprobar_enlaces: bool = True,
 ) -> ResultadoValidacion:
@@ -63,7 +64,8 @@ def validar_informe(
         return resultado
 
     resultado.errores.extend(validacion.validar_titular(informe))
-    resultado.errores.extend(validacion.validar_confianza_y_fuentes(informe))
+    resultado.errores.extend(validacion.validar_confianza_y_fuentes(informe, fuentes_cfg))
+    resultado.errores.extend(validacion.validar_nivel_de_fuentes(informe, fuentes_cfg))
     resultado.errores.extend(validacion.validar_cifras(informe, datos))
     resultado.errores.extend(
         validacion.validar_fechas_fuente(informe, antiguedad_maxima_dias)
@@ -73,6 +75,7 @@ def validar_informe(
     resultado.avisos.extend(validacion.avisos_limite_palabras(informe, modulos_cfg))
     resultado.avisos.extend(validacion.avisos_concentracion_medios(informe))
     resultado.avisos.extend(validacion.avisos_modulo_sin_fuentes_fiables(informe))
+    resultado.avisos.extend(validacion.avisos_fuentes_no_catalogadas(informe, fuentes_cfg))
 
     if comprobar_enlaces:
         errores_enlaces, avisos_enlaces = comprobar_enlaces_informe(informe)
@@ -116,6 +119,7 @@ def main(argv: list[str] | None = None) -> int:
         palabras=palabras,
         antiguedad_maxima_dias=fuentes_cfg["antiguedad_maxima_dias"],
         modulos_cfg=modulos_cfg,
+        fuentes_cfg=fuentes_cfg,
         comprobar_enlaces=not args.sin_comprobar_enlaces,
     )
     _escribir_en_log(carpeta, resultado)
