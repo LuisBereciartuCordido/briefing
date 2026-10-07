@@ -41,6 +41,11 @@ EMOJI_CONFIANZA = {
     "interpretacion": "💬",
 }
 
+COLOR_VARIACION_POSITIVA = "#0A7D3C"
+COLOR_VARIACION_NEGATIVA = "#C23B2E"
+
+LOGO_ANCHO_PX = 220
+
 
 def _formatear_valor(valor: float, unidad: str) -> str:
     if unidad == "puntos":
@@ -59,27 +64,49 @@ def _formatear_variacion(actual: float, anterior: float | None) -> str:
     return f"{variacion:+.2f} %"
 
 
+def _formatear_variacion_coloreada(actual: float, anterior: float | None) -> str:
+    """Como _formatear_variacion, pero en verde si sube y en rojo si baja.
+
+    Buttondown deja usar HTML suelto dentro del Markdown ("All HTML is
+    valid Markdown" — docs.buttondown.com/using-markdown), así que un
+    <span style="color:..."> puntual no exige pasar todo el email a HTML.
+    """
+    variacion_fmt = _formatear_variacion(actual, anterior)
+    if variacion_fmt == "—":
+        return variacion_fmt
+    color = COLOR_VARIACION_POSITIVA if variacion_fmt.startswith("+") else COLOR_VARIACION_NEGATIVA
+    return f'<span style="color:{color}">{variacion_fmt}</span>'
+
+
 def renderizar_lo_esencial(informe: dict) -> str:
     lineas = "\n".join(f"- {linea}" for linea in informe["lo_esencial"])
     return f"## Lo esencial\n\n{lineas}\n"
 
 
-def renderizar_tabla_mercados(
+def renderizar_mercados(
     datos: dict, datos_semana_anterior: dict | None, mercados_cfg: list[dict]
 ) -> str:
-    filas = ["| Instrumento | Valor | Variación semanal |", "| :-- | --: | --: |"]
+    """Lista (no tabla) de instrumentos: valor y variación semanal.
+
+    Una tabla Markdown pierde su fila de cabecera si alguien abre el
+    borrador en el editor "fancy" de Buttondown y toca el cuerpo
+    (comprobado, ver CLAUDE.md sección 11) — una lista no tiene cabecera
+    que perder, así que el problema desaparece en vez de solo avisarse.
+    También se lee mejor en móvil que una tabla de 3 columnas.
+    """
+    filas = []
     for instrumento in mercados_cfg:
         id_ = instrumento["id"]
         dato = datos.get(id_)
         if dato is None:
-            filas.append(f"| {instrumento['nombre']} | sin dato | — |")
+            filas.append(f"- **{instrumento['nombre']}:** sin dato (—)")
             continue
         anterior = (datos_semana_anterior or {}).get(id_, {}).get("valor")
         valor_fmt = _formatear_valor(dato["valor"], instrumento["unidad"])
-        variacion_fmt = _formatear_variacion(dato["valor"], anterior)
-        filas.append(f"| {instrumento['nombre']} | {valor_fmt} | {variacion_fmt} |")
-    tabla = "\n".join(filas)
-    return f"## Mercados esta semana\n\n{tabla}\n"
+        variacion_fmt = _formatear_variacion_coloreada(dato["valor"], anterior)
+        filas.append(f"- **{instrumento['nombre']}:** {valor_fmt} ({variacion_fmt})")
+    lista = "\n".join(filas)
+    return f"## Mercados esta semana\n\n{lista}\n"
 
 
 def _renderizar_fuentes(fuentes: list[dict]) -> str:
@@ -176,14 +203,27 @@ def _formatear_rango_fechas(inicio: str, fin: str) -> str:
     return f"{dia_i} de {mes_i} de {anio_i} al {dia_f} de {mes_f} de {anio_f}"
 
 
-def renderizar_titulo(informe: dict, nombre_newsletter: str) -> str:
-    """Nombre de la newsletter + el titular llamativo de la semana como
-    subtítulo, con la fecha en una línea pequeña debajo (sección 5:
-    "título llamativo", no una fecha mecánica)."""
+def renderizar_titulo(informe: dict, nombre_newsletter: str, logo_url: str) -> str:
+    """Logo + el titular llamativo de la semana, con la fecha en una línea
+    pequeña debajo (sección 5: "título llamativo", no una fecha mecánica).
+
+    El logo ya lleva el nombre de la newsletter en la propia imagen
+    (wordmark), así que no se repite como texto aparte — se vio repetido
+    en una prueba real (logo + "The Macrochip" debajo, dos veces seguidas).
+    El titular pasa a ser el encabezado principal del texto.
+
+    El logo es una URL fija (config/general.yaml) — se sube una sola vez
+    a Buttondown, no en cada ejecución, porque no cambia semana a semana.
+    Va con un <img width="..."> explícito, no la sintaxis Markdown de
+    imagen: en una prueba real, algunos clientes de correo estiraban la
+    imagen al ancho de la columna del email sin respetar su tamaño
+    natural, pixelándola — fijar el ancho de visualización (con el PNG
+    a mayor resolución de base, LOGO_ANCHO_PX) lo evita.
+    """
     rango = _formatear_rango_fechas(informe["periodo"]["inicio"], informe["periodo"]["fin"])
     return (
-        f"# {nombre_newsletter}\n\n"
-        f"## {informe['titular']['texto']}\n\n"
+        f'<img src="{logo_url}" alt="{nombre_newsletter}" width="{LOGO_ANCHO_PX}">\n\n'
+        f"# {informe['titular']['texto']}\n\n"
         f"_Semana del {rango}_\n"
     )
 
@@ -286,6 +326,7 @@ def renderizar_informe(
     mercados_cfg: list[dict],
     modulos_cfg: list[dict],
     nombre_newsletter: str,
+    logo_url: str,
 ) -> str:
     """Ensambla el Markdown **público** del email, en el orden de la sección 5.
 
@@ -295,10 +336,10 @@ def renderizar_informe(
     que reciben los suscriptores.
     """
     secciones = [
-        renderizar_titulo(informe, nombre_newsletter),
+        renderizar_titulo(informe, nombre_newsletter, logo_url),
         renderizar_indice(modulos_cfg),
         renderizar_lo_esencial(informe),
-        renderizar_tabla_mercados(datos, datos_semana_anterior, mercados_cfg),
+        renderizar_mercados(datos, datos_semana_anterior, mercados_cfg),
         renderizar_macro_global(informe),
         renderizar_modulos(informe, modulos_cfg),
         renderizar_concepto_semana(informe),

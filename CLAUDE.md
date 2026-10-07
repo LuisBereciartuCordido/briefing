@@ -78,7 +78,7 @@ newsletter/
 ## 5. Contenido del informe
 
 ### Cabecera
-- **Titular** (`titular.texto` + `titular.noticia_id`): una frase llamativa, tipo prensa, con la noticia más remarcable de toda la semana — no tiene por qué ser la primera de "Lo esencial". Va como subtítulo bajo el nombre de la newsletter; la fecha del periodo queda como una línea pequeña debajo. "Llamativo" sigue sin significar "sensacionalista" (`prompts/estilo.md` no se relaja).
+- **Titular** (`titular.texto` + `titular.noticia_id`): una frase llamativa, tipo prensa, con la noticia más remarcable de toda la semana — no tiene por qué ser la primera de "Lo esencial". Va como encabezado principal bajo el logo (que ya lleva el nombre de la newsletter); la fecha del periodo queda como una línea pequeña debajo. "Llamativo" sigue sin significar "sensacionalista" (`prompts/estilo.md` no se relaja).
 
 ### Núcleo fijo
 1. **Lo esencial:** 5 líneas como máximo.
@@ -194,9 +194,9 @@ Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % d
 ## 11. Renderizado del email (`render.py`)
 
 - Markdown limpio, legible en móvil.
-- Título: nombre de la newsletter + `titular` como subtítulo + fecha del periodo en una línea pequeña debajo.
+- Cabecera: logo (`config/general.yaml:logo_url`, subido una sola vez a Buttondown vía `POST /v1/images`; el logo ya lleva el nombre de la newsletter en la propia imagen, no se repite como texto aparte) + `titular` como encabezado principal + fecha del periodo en una línea pequeña debajo. El logo va con `<img width="...">` explícito (no la sintaxis Markdown de imagen) y a alta resolución: algunos clientes de correo lo estiraban más allá de su tamaño natural y se pixelaba (comprobado en un borrador real).
 - Índice de módulos sin enlaces de ancla (el soporte de `#ancla` dentro de un email es demasiado inconsistente entre clientes de correo).
-- Tabla de mercados desde `datos.json`, con variación semanal calculada contra la semana ISO anterior (o `—` si no hay dato previo).
+- Mercados: lista (no tabla) desde `datos.json`, con variación semanal calculada contra la semana ISO anterior (o `—` si no hay dato previo). Es una lista a propósito: una tabla Markdown se lee peor en móvil con 3 columnas, y el editor "fancy" de Buttondown pierde la cabecera de las tablas al tocarlas — una lista no tiene cabecera que perder. La variación va en verde o rojo (subida/bajada) con un `<span style="color:...">` suelto dentro del Markdown — Buttondown lo acepta sin pasar todo el email a HTML ("All HTML is valid Markdown", docs.buttondown.com/using-markdown).
 - Enlaces de fuente en línea tras cada afirmación, agrupados también en "Para profundizar".
 - **Paquete de contexto para IA**, en un bloque de código copiable: instrucción + prompt sugerido + periodo + datos duros con fecha/fuente + cada noticia en forma compacta (título, resumen propio, confianza, fuentes, `hilo_id`). Nunca texto copiado de artículos. Si supera `LIMITE_CONTEXTO_IA_CARACTERES`, se recorta con un aviso dentro del propio bloque.
 - Aviso legal fijo al final.
@@ -204,7 +204,7 @@ Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % d
 
 **Publicar en Buttondown (`publish.py`):** fuerza el modo Markdown explícitamente (`<!-- buttondown-editor-mode: plaintext -->`) en vez de confiar en la autodetección. Solo sabe crear borradores (`status: "draft"`) — nunca envía.
 
-> **Cuidado al revisar el borrador ya creado:** abrir el borrador en el editor "fancy" (visual) de Buttondown y hacer clic dentro del cuerpo reconvierte el Markdown a HTML y **pierde la fila de cabecera de las tablas** (comprobado). Revísalo en una vista de solo lectura si puedes; si necesitas editarlo, comprueba después que las tablas siguen teniendo su cabecera antes de enviarlo.
+> **Cuidado al revisar el borrador ya creado:** abrir el borrador en el editor "fancy" (visual) de Buttondown y hacer clic dentro del cuerpo reconvierte el Markdown a HTML (comprobado) — con el riesgo de que algo se reformatee sin que lo pidas. Revísalo en una vista de solo lectura si puedes; si necesitas editarlo, comprueba el resultado antes de enviarlo.
 
 ## 12. Fuera de alcance por ahora (diseña sin cerrar estas puertas)
 

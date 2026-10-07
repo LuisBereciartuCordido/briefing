@@ -54,6 +54,7 @@ def main(argv: list[str] | None = None) -> int:
         mercados_cfg=mercados_cfg,
         modulos_cfg=modulos_cfg,
         nombre_newsletter=general_cfg["nombre_newsletter"],
+        logo_url=general_cfg["logo_url"],
     )
 
     ruta_salida = carpeta / "informe.md"
