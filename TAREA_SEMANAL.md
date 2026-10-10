@@ -14,6 +14,10 @@ pip install -e .
 
 Antes de nada, calcula la semana ISO actual (formato `AAAA-Sww`) y su periodo (lunes a domingo). Todo lo que sigue usa esa `{semana}`, `{inicio}` y `{fin}`.
 
+**Si `data/{semana}/` ya tiene contenido** (de una ejecución anterior, una prueba local, o un reintento del mismo domingo), no es señal de que esta semana "ya está hecha" — continúa igualmente y sobrescribe su contenido con el resultado de esta ejecución. Es el comportamiento esperado al correr en la fecha programada, no un motivo para pararse ni para preguntar.
+
+El único motivo real para detenerte en este paso y avisar en el resumen (sección 9) sin seguir adelante: que la fecha de hoy no corresponda a un disparo en la fecha programada (domingo) y el periodo `{inicio}`-`{fin}` de la semana que tocaría procesar **todavía no haya terminado** — redactar una semana a medias produciría un informe incompleto. Si hoy es domingo (el disparo programado), el periodo se considera cerrado a efectos de este informe aunque falten horas para la medianoche: sigue adelante sin dudarlo.
+
 ## 1. Datos duros
 
 ```
