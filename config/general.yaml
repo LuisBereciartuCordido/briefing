@@ -11,8 +11,14 @@ nombre_newsletter: "The Macrochip"
 # con un <img width="..."> explícito (ver LOGO_ANCHO_PX en render.py),
 # no con la sintaxis Markdown de imagen.
 # Fondo transparente (no blanco sólido: se veía como un bloque de color
-# distinto al del resto del email) y a alta resolución (802x248, ~3.6x
+# distinto al del resto del email) y a alta resolución (1720x456, ~7.8x
 # el ancho de visualización real): en una prueba real, algunos clientes
 # de correo estiraban la imagen más allá de su tamaño natural y se veía
 # pixelada; con más resolución de base y el ancho fijado, no pasa.
-logo_url: "https://assets.buttondown.email/images/a369ffe6-7e43-4ef3-bda2-5b0340683c7b.png"
+# Generado con cairosvg (SVG → PNG directo, transparencia real), no con
+# una captura de pantalla a la que se le quita el blanco de fondo a mano:
+# ese método anterior también volvía transparente cualquier blanco del
+# propio diseño (la "M" tallada en blanco quedaba como un agujero, no
+# como blanco opaco — invisible salvo que el fondo detrás fuera blanco
+# por pura coincidencia, que es como pasó desapercibido hasta ahora).
+logo_url: "https://assets.buttondown.email/images/543450fd-12be-44f2-af01-706df1710fda.png"
