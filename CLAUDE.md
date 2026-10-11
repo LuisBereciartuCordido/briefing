@@ -1,119 +1,120 @@
-# Proyecto: The Macrochip — briefing semanal de economía y geopolítica
+# Project: The Macrochip — weekly economics & geopolitics briefing
 
-> Convenciones del proyecto y estado actual, para que las cargue Claude Code en cada sesión. El planteamiento original de este proyecto evolucionó con el desarrollo; este documento describe cómo funciona realmente hoy.
+> Project conventions and current state, loaded by Claude Code every session. This project's original plan evolved during development; this document describes how it actually works today.
 
-## 1. Contexto y objetivo
+## 1. Context and goal
 
-Newsletter semanal en español que explica, de forma veraz, clara y amena, el contexto económico y geopolítico global que mueve los mercados. El objetivo es que cualquier persona sin formación económica entienda por qué se mueven los precios de sus inversiones, sin recibir nunca consejos de inversión.
+A weekly newsletter in Spanish that explains, truthfully, clearly and engagingly, the global economic and geopolitical context driving the markets. The goal is for anyone with no background in economics to understand why the prices of their investments move — without ever giving investment advice.
 
-- **Público:** principalmente personas que viven en España, desde principiantes hasta inversores particulares de largo plazo.
-- **Frecuencia:** semanal, el domingo por la tarde.
-- **Mi perfil técnico:** estudiante de Ingeniería Informática. Manejo Python, Docker y automatización. Explica decisiones no obvias, pero no lo básico.
+- **Audience:** mainly people living in Spain, from beginners to long-term retail investors.
+- **Frequency:** weekly, Sunday afternoon.
+- **My technical background:** Computer Science Engineering student. Comfortable with Python, Docker and automation. Explain non-obvious decisions, not the basics.
 
-## 2. Restricciones clave
+## 2. Key constraints
 
-1. **Coste extra cero.** La redacción semanal la hace una **Routine de Claude Code en la nube** (claude.ai/code/routines), incluida en la suscripción Pro/Max. Nada de API de Anthropic en el flujo principal.
-2. **Separación de responsabilidades:** lo determinista va en scripts de Python (`scripts/`, `src/briefing/`); lo que requiere criterio (investigar, redactar, verificar) lo hace Claude dentro de la Routine, siguiendo instrucciones versionadas en el repo (`prompts/`, `TAREA_SEMANAL.md`).
-3. **Revisión humana obligatoria.** El flujo crea un **borrador** en Buttondown. Nunca envía directamente.
-4. **Plan B preparado, no implementado.** El paso de redacción podría sustituirse en el futuro por llamadas a la API de Claude (con filtrado previo de RSS) sin tocar el resto del pipeline: el contrato real es que algo produzca `borrador.json` con la forma de `schema/informe.schema.json` — hoy lo hace la Routine siguiendo `prompts/redactor.md`, mañana podría hacerlo un script.
-5. **Sin datos personales en el repo.** Nada de carteras, nombres de suscriptores ni claves. Las claves van en variables de entorno o *secrets* (en la Routine, como **API credentials**, ver sección 3).
-6. **Copyright.** Nunca se copian párrafos de artículos de terceros en el informe, el JSON ni el paquete de contexto. Solo resúmenes propios, extractos muy breves cuando sea imprescindible, y enlaces.
+1. **Zero extra cost.** The weekly writing is done by a **Claude Code cloud Routine** (claude.ai/code/routines), included in the Pro/Max subscription. No Anthropic API in the main pipeline.
+2. **Separation of concerns:** anything deterministic lives in Python scripts (`scripts/`, `src/briefing/`); anything that requires judgment (researching, writing, verifying) is done by Claude inside the Routine, following versioned instructions in the repo (`prompts/`, `TAREA_SEMANAL.md`).
+3. **Human review is mandatory.** The pipeline creates a **draft** in Buttondown. It never sends directly.
+4. **Plan B ready, not implemented.** The writing step could be replaced in the future by calls to the Claude API (with RSS pre-filtering) without touching the rest of the pipeline: the real contract is that something produces `borrador.json` shaped like `schema/informe.schema.json` — today the Routine does it following `prompts/redactor.md`, tomorrow a script could do it.
+5. **No personal data in the repo.** No portfolios, no subscriber names, no keys. Keys go in environment variables or secrets (in the Routine, as **API credentials**, see section 3).
+6. **Copyright.** Paragraphs from third-party articles are never copied into the report, the JSON, or the context package. Only original summaries, very short excerpts when strictly necessary, and links.
 
-## 3. Viabilidad (confirmada en la Fase 0)
+## 3. Feasibility (confirmed in Phase 0)
 
-- **Routines de Claude Code:** se crean en claude.ai/code/routines, corren como sesión completa (bash, Python, `WebSearch`/`WebFetch`) sin aprobaciones de permisos. El *environment* por defecto ("Trusted") solo permite tráfico de red a registros de paquetes. `WebSearch`/`WebFetch` no pasan por esa red bajo ningún modo (van por la conexión con Anthropic), así que la investigación del redactor funciona igual sea cual sea la red del *environment*.
-- **Red del *environment* de producción: Full.** Para que `fetch_data.py`/`publish.py` lleguen a las APIs reales (BCE, Eurostat, INE, FRED, Yahoo Finance, Buttondown) hacía falta más que "Trusted". Se descartó "Custom" (listar dominios a mano) por el mantenimiento de mantenerla sincronizada con cualquier cambio de API, y se optó por "Full". El riesgo real que esto abre no es de red — es que el redactor cite una fuente con más nivel de confianza del que le corresponde (p. ej. un blog cualquiera autodeclarado nivel 1), y eso no lo arregla restringir dominios a nivel de red (`WebSearch`/`WebFetch` no pasan por ahí de todas formas). Lo arregla `validar_nivel_de_fuentes`/`avisos_fuentes_no_catalogadas` en `validate.py` (sección 10), que cruzan el nivel declarado de cada fuente contra `config/fuentes.yaml`.
-- **Ramas:** una Routine empuja por defecto a una rama `claude/`-prefijada. Se usa `claude/archivo-semanal` como la rama fija donde la tarea semanal commitea (ver sección 14, es la única excepción a "Claude no commitea").
-- **Buttondown:** `POST https://api.buttondown.com/v1/emails` con `Authorization: Token $BUTTONDOWN_API_KEY`, `status: "draft"`, cuerpo en Markdown — disponible en el plan gratuito.
-- **APIs de datos:** BCE y Eurostat sin clave; INE sin clave; FRED con clave gratuita. Mercados: ver sección 6.
-- **Secrets de la Routine:** no todas las claves se guardan igual. `BUTTONDOWN_API_KEY` va como **API credential** (cabecera `Authorization`, prefijo `Token`, host `api.buttondown.com`, ruta `/v1/emails`), porque Buttondown se autentica por cabecera. `FRED_API_KEY` va como **variable de entorno normal**, porque FRED espera la clave como parámetro de la URL (`?api_key=...`) y las API credentials solo pueden inyectar cabeceras, no *query params*.
-- **Conectores:** la Routine de producción no lleva ninguno activo (se quitan los que vienen por defecto). Ninguno hace falta para este flujo, y cualquier conector activo es superficie de escritura que Claude puede usar sin preguntar durante la ejecución.
+- **Claude Code Routines:** created at claude.ai/code/routines, run as a full session (bash, Python, `WebSearch`/`WebFetch`) with no permission prompts. The default *environment* ("Trusted") only allows network traffic to package registries. `WebSearch`/`WebFetch` never go through that network regardless of mode (they go over the connection to Anthropic), so the writer's research works the same no matter what the *environment*'s network is set to.
+- **Production *environment* network: Full.** For `fetch_data.py`/`publish.py` to reach the real APIs (ECB, Eurostat, INE, FRED, Yahoo Finance, Buttondown), "Trusted" wasn't enough. "Custom" (listing domains by hand) was ruled out because of the upkeep of keeping it in sync with any API change, so "Full" was chosen instead. The real risk this opens isn't a network one — it's the writer citing a source with more credibility than it actually deserves (e.g. some random blog self-declaring itself level 1), and restricting domains at the network level doesn't fix that (`WebSearch`/`WebFetch` don't go through it anyway). `validar_nivel_de_fuentes`/`avisos_fuentes_no_catalogadas` in `validate.py` (section 10) fix it, by cross-checking each source's declared level against `config/fuentes.yaml`.
+- **Branches:** a Routine pushes by default to a `claude/`-prefixed branch. `claude/archivo-semanal` is used as the fixed branch where the weekly task commits (see section 14 — the only exception to "Claude doesn't commit").
+- **Buttondown:** `POST https://api.buttondown.com/v1/emails` with `Authorization: Token $BUTTONDOWN_API_KEY`, `status: "draft"`, Markdown body — available on the free plan.
+- **Data APIs:** ECB and Eurostat need no key; INE needs no key; FRED needs a free key. Markets: see section 6.
+- **Routine secrets:** not every key is stored the same way. `BUTTONDOWN_API_KEY` is an **API credential** (`Authorization` header, `Token` prefix, host `api.buttondown.com`, path `/v1/emails`), because Buttondown authenticates via header. `FRED_API_KEY` is a **plain environment variable**, because FRED expects the key as a URL parameter (`?api_key=...`) and API credentials can only inject headers, not query parameters.
+  - **Real incident (week 2026-S41, the first real Sunday run):** the publish step failed with HTTP 401. Two causes stacked up. First, the code assumed `BUTTONDOWN_API_KEY` would be readable via `os.environ` — not true for an API credential by design, since the network proxy injects the header and the code never sees the raw key; fixed in `src/briefing/buttondown.py` to send the request with no custom header when the variable isn't readable, letting the proxy complete it. Second, and separately, the credential's custom header prefix had been left on `Bearer` instead of `Token` (Buttondown's real scheme) — a write-only field in the Routine UI that can't be checked after saving, so the mismatch went unnoticed until it actually failed in production.
+- **Connectors:** the production Routine runs with none enabled (the defaults are removed). None are needed for this flow, and any active connector is writable surface Claude can use without asking during a run.
 
-## 4. Arquitectura del repositorio
+## 4. Repository architecture
 
 ```
 newsletter/
-├── CLAUDE.md                  # Este archivo: convenciones + estado actual
-├── TAREA_SEMANAL.md           # Instrucciones para la Routine semanal
-├── README.md                  # Qué es el proyecto, el pipeline, decisiones de ingeniería
+├── CLAUDE.md                  # This file: conventions + current state
+├── TAREA_SEMANAL.md           # Instructions for the weekly Routine
+├── README.md                  # What the project is, the pipeline, engineering decisions
 ├── config/
-│   ├── fuentes.yaml           # Dominios por nivel, antigüedad máxima
-│   ├── modulos.yaml           # Módulos, orden, límite de palabras
-│   ├── mercados.yaml          # Instrumentos de la tabla de mercados
-│   ├── validacion.yaml        # Palabras de sensacionalismo/recomendación
-│   └── general.yaml           # Nombre de la newsletter
+│   ├── fuentes.yaml           # Domains by level, max age
+│   ├── modulos.yaml           # Modules, order, word limit
+│   ├── mercados.yaml          # Instruments in the markets table
+│   ├── validacion.yaml        # Sensationalism/recommendation words
+│   └── general.yaml           # Newsletter name
 ├── prompts/
 │   ├── redactor.md
 │   ├── verificador.md
 │   └── estilo.md
 ├── schema/
 │   └── informe.schema.json
-├── scripts/                   # CLIs delgadas; la lógica vive en src/briefing/
+├── scripts/                   # Thin CLIs; the logic lives in src/briefing/
 │   ├── fetch_data.py
 │   ├── validate.py
 │   ├── render.py
 │   ├── publish.py
-│   └── run_week.sh            # Encadena los 4 scripts, solo para pruebas locales
+│   └── run_week.sh            # Chains the 4 scripts, local testing only
 ├── src/briefing/
 │   ├── fuentes/                # ecb.py, eurostat.py, ine.py, fred.py, mercados.py
-│   ├── modelos.py              # Dato, Informe y el resto de dataclasses
-│   ├── semanas.py              # Aritmética de semana ISO
-│   ├── validacion.py           # Comprobaciones sin red
-│   ├── validacion_enlaces.py   # Comprobación de enlaces (con red)
+│   ├── modelos.py              # Dato, Informe and the rest of the dataclasses
+│   ├── semanas.py              # ISO week arithmetic
+│   ├── validacion.py           # Checks that don't touch the network
+│   ├── validacion_enlaces.py   # Link checking (touches the network)
 │   ├── render.py
 │   └── buttondown.py
 ├── data/
 │   └── AAAA-SNN/
 │       ├── datos.json
-│       ├── borrador.json       # Salida del redactor
-│       ├── informe.json        # Salida del verificador (validado)
-│       ├── informe.md          # Email público
-│       ├── transparencia.md    # "Cómo se hizo" — uso interno, no se publica
+│       ├── borrador.json       # Writer's output
+│       ├── informe.json        # Verifier's output (validated)
+│       ├── informe.md          # Public email
+│       ├── transparencia.md    # "How this was made" — internal use, not published
 │       └── log.json
 └── tests/
 ```
 
-**Requisitos técnicos:** Python 3.11+, dependencias mínimas en `pyproject.toml`. Tipado, logs claros, errores explícitos — si un paso falla, el flujo se detiene y no crea el borrador. Tests para `validate.py`, `render.py`, el cliente de Buttondown, y en general para todo lo que vive en `src/briefing/`.
+**Technical requirements:** Python 3.11+, minimal dependencies in `pyproject.toml`. Typed, clear logs, explicit errors — if a step fails, the pipeline stops and no draft gets created. Tests for `validate.py`, `render.py`, the Buttondown client, and generally everything living in `src/briefing/`.
 
-## 5. Contenido del informe
+## 5. Report content
 
-### Cabecera
-- **Titular** (`titular.texto` + `titular.noticia_id`): una frase llamativa, tipo prensa, con la noticia más remarcable de toda la semana — no tiene por qué ser la primera de "Lo esencial". Va como encabezado principal bajo el logo (que ya lleva el nombre de la newsletter); la fecha del periodo queda como una línea pequeña debajo. "Llamativo" sigue sin significar "sensacionalista" (`prompts/estilo.md` no se relaja).
+### Header
+- **Headline** (`titular.texto` + `titular.noticia_id`): a catchy, press-style sentence with the week's single most notable story — it doesn't have to be the first item in "Lo esencial". It's the main heading under the logo (which already carries the newsletter's name); the period's date sits as a small line below. "Catchy" still doesn't mean "sensationalist" (`prompts/estilo.md` doesn't relax on this).
 
-### Núcleo fijo
-1. **Lo esencial:** 5 líneas como máximo.
-2. **Tabla de mercados de la semana:** variación semanal de los instrumentos de `mercados.yaml`. Los números salen **solo** de `datos.json`.
-3. **Macro global:** tipos de interés, inflación, crecimiento y dólar.
+### Fixed core
+1. **Lo esencial (the essentials):** 5 lines max.
+2. **Weekly markets table:** weekly change for the instruments in `mercados.yaml`. The numbers come **only** from `datos.json`.
+3. **Macro global:** interest rates, inflation, growth and the dollar.
 
-### Módulos (3-5 líneas cada uno, título propio)
-EE. UU. · Europa · Asia y China · Emergentes · Energía y materias primas (incluye oro) · Tecnología e IA · Geopolítica y riesgos. Si un módulo no tiene novedades, se indica en una línea (`sin_novedades: true`, sin noticias).
+### Modules (3-5 lines each, own title)
+US · Europe · Asia & China · Emerging markets · Energy & commodities (includes gold) · Tech & AI · Geopolitics & risks. If a module has no news, it's stated in one line (`sin_novedades: true`, no news items).
 
-### Cierre
-4. **Concepto de la semana:** explicación en 4-5 líneas de un concepto que aparezca en el informe, con un `id` para enlazarlo en el futuro con un curso para principiantes.
-5. **Perspectiva de largo plazo:** qué de esta semana es estructural (años) y qué es ruido (días).
-6. **Para profundizar:** enlaces agrupados por módulo.
-7. **Paquete de contexto para IA** (sección 11).
-8. **Aviso fijo:** "Contenido informativo. No es asesoramiento financiero."
+### Closing
+4. **Concept of the week:** a 4-5 line explanation of a concept that appears in the report, with an `id` to link it in the future to a beginners' course.
+5. **Long-term perspective:** what from this week is structural (years) and what's noise (days).
+6. **To dig deeper:** links grouped by module.
+7. **AI context package** (section 11).
+8. **Fixed disclaimer:** "Informational content. Not investment advice."
 
-**Longitud del cuerpo principal (puntos 1-6):** lectura de 5 a 7 minutos. Límite de palabras por módulo en `modulos.yaml`.
+**Main body length (points 1-6):** a 5 to 7 minute read. Per-module word limit in `modulos.yaml`.
 
-**No hay agenda de la semana siguiente.** Se valoró y se descartó: el seguimiento real de una historia ya lo da `hilo_id` cuando esa historia sigue siendo noticia — una lista de fechas de reuniones y publicaciones de datos no aporta nada que un calendario económico cualquiera no dé ya, y no tenía ningún mecanismo que la conectara con el resto del informe.
+**No "next week" agenda.** Considered and dropped: real follow-up on a story is already handled by `hilo_id` when that story is still news — a list of meeting dates and data releases adds nothing a regular economic calendar doesn't already give, and it had no mechanism tying it back to the rest of the report.
 
-**"Cómo se hizo este informe" (transparencia) no se envía a los suscriptores.** Mostrar las correcciones del verificador a todo el mundo resta fiabilidad percibida en vez de sumarla. Se sigue generando — en `data/<semana>/transparencia.md`, de uso interno — pero nunca se adjunta al borrador de Buttondown. El detalle completo, como siempre, queda también en `log.json`.
+**"How this report was made" (transparency) isn't sent to subscribers.** Showing the verifier's corrections to everyone reduces perceived reliability instead of adding to it. It's still generated — in `data/<week>/transparencia.md`, for internal use — but never attached to the Buttondown draft. Full detail, as always, also lives in `log.json`.
 
-## 6. Datos duros (`fetch_data.py`)
+## 6. Hard data (`fetch_data.py`)
 
-Descarga automática, sin pasar por el modelo. Cada dato en `datos.json` lleva: valor, unidad, fecha, fuente y URL.
+Downloaded automatically, without going through the model. Each value in `datos.json` carries: value, unit, date, source and URL.
 
-- **BCE:** tipo de la facilidad de depósito y EUR/USD de referencia — ECB Data Portal (SDMX 2.1, sin clave).
-- **Inflación:** IPCA de la eurozona (Eurostat, JSON-stat) e IPC de España (INE). Mensuales: solo se incluyen en `datos.json` si cambiaron desde la última vez que se vieron (hasta 8 semanas atrás), para no repetir el mismo dato como "nuevo" cada semana.
-- **EE. UU.:** tipo de la Fed e IPC — FRED (clave gratuita).
-- **Mercados:** S&P 500 y Brent desde FRED (oficial). Nikkei 225, oro y los proxies de MSCI World/Emerging Markets/Europe (vía ETFs, ya que MSCI no licencia sus índices gratis) desde el endpoint no oficial de Yahoo Finance — sin clave, sin *challenge* anti-bot, el mismo mecanismo que usa la librería `yfinance`. **Riesgo asumido, sin fuente de respaldo:** es un endpoint no documentado que Yahoo podría cambiar sin aviso, y al correr en infraestructura cloud compartida un bloqueo de IP por otro usuario podría afectarnos. Si falla, el flujo se detiene sin publicar, igual que cualquier otro fallo — no hay una segunda fuente implementada de antemano para un problema que no ha ocurrido.
-- Los clientes de BCE, Eurostat, INE y FRED (y las comprobaciones de enlaces de `validate.py`) no llevan una cabecera `User-Agent` propia: un valor genérico como `"Mozilla/5.0"` hace que algunos CDN (comprobado con `fred.stlouisfed.org`) dejen la conexión colgada en vez de responder, tratándolo como tráfico sospechoso. El user-agent por defecto de `requests` llega bien. **Yahoo Finance es la excepción deliberada:** ese endpoint sí necesita un `User-Agent` de navegador para no ser rechazado — ver `src/briefing/fuentes/mercados.py`.
+- **ECB:** deposit facility rate and the reference EUR/USD — ECB Data Portal (SDMX 2.1, no key).
+- **Inflation:** eurozone HICP (Eurostat, JSON-stat) and Spain's CPI (INE). Monthly series: only included in `datos.json` if they changed since the last time they were seen (up to 8 weeks back), so the same figure doesn't get reported as "new" every week.
+- **US:** Fed rate and CPI — FRED (free key).
+- **Markets:** S&P 500 and Brent from FRED (official). Nikkei 225, gold and the MSCI World/Emerging Markets/Europe proxies (via ETFs, since MSCI doesn't license its indices for free) from Yahoo Finance's unofficial endpoint — no key, no anti-bot challenge, the same mechanism the `yfinance` library uses. **Risk accepted, no backup source:** it's an undocumented endpoint Yahoo could change without notice, and running on shared cloud infrastructure, an IP block triggered by another user could affect us. If it fails, the pipeline stops without publishing, same as any other failure — there's no second source implemented ahead of time for a problem that hasn't happened.
+- The ECB, Eurostat, INE and FRED clients (and `validate.py`'s link checks) don't send a custom `User-Agent` header: a generic value like `"Mozilla/5.0"` makes some CDNs (confirmed with `fred.stlouisfed.org`) hang the connection instead of responding, treating it as suspicious traffic. `requests`' default user-agent gets through fine. **Yahoo Finance is the deliberate exception:** that endpoint does need a browser-like `User-Agent` to avoid being rejected — see `src/briefing/fuentes/mercados.py`.
 
-## 7. Esquema de datos (`informe.schema.json`)
+## 7. Data schema (`informe.schema.json`)
 
-Decisión central de la arquitectura: el email, el paquete de contexto y la transparencia salen todos de este JSON.
+Core architectural decision: the email, the context package and the transparency summary all come from this one JSON.
 
 ```json
 {
@@ -132,7 +133,7 @@ Decisión central de la arquitectura: el email, el paquete de contexto y la tran
 }
 ```
 
-Cada **noticia**:
+Each **noticia** (news item):
 
 ```json
 {
@@ -144,109 +145,109 @@ Cada **noticia**:
   "confianza": "confirmado | una_fuente | interpretacion",
   "relevancia_espana_ue": "alta | media | baja",
   "fuentes": [{"url": "...", "medio": "...", "nivel": 1, "fecha": "AAAA-MM-DD", "idioma": "en", "contexto_historico": false}],
-  "cifras": [{"valor": "...", "ref_datos": "clave en datos.json o null"}]
+  "cifras": [{"valor": "...", "ref_datos": "key in datos.json, or null"}]
 }
 ```
 
-- `hilo_id` agrupa la misma historia entre semanas. Antes de asignarlo, el redactor revisa los `hilo_id` de las últimas 4 semanas en `data/` y los reutiliza si es la misma historia.
-- `cifras[].ref_datos` permite a `validate.py` comprobar los números contra `datos.json`.
-- `fuentes[].contexto_historico` (opcional, por defecto `false`): marca una fuente citada deliberadamente como contexto histórico aunque su fecha caiga fuera de la ventana de antigüedad permitida (sección 10). Sin este campo no había forma de declarar esa excepción.
-- `titular.noticia_id` debe apuntar a un `id` real de alguna noticia del informe; `validate.py` lo comprueba.
-- El esquema exige al menos una noticia en un módulo cuando `sin_novedades` es `false` (si no hay novedades, se declara explícitamente en vez de dejar la lista vacía).
+- `hilo_id` groups the same story across weeks. Before assigning one, the writer checks the `hilo_id`s from the last 4 weeks in `data/` and reuses one if it's the same story.
+- `cifras[].ref_datos` lets `validate.py` check the numbers against `datos.json`.
+- `fuentes[].contexto_historico` (optional, defaults to `false`): flags a source deliberately cited as historical context even though its date falls outside the allowed age window (section 10). Without this field there was no way to declare that exception.
+- `titular.noticia_id` must point to a real `id` from some news item in the report; `validate.py` checks this.
+- The schema requires at least one news item in a module when `sin_novedades` is `false` (if there's no news, it's stated explicitly instead of leaving the list empty).
 
-## 8. Flujo semanal (`TAREA_SEMANAL.md`)
+## 8. Weekly flow (`TAREA_SEMANAL.md`)
 
-`TAREA_SEMANAL.md` lleva las instrucciones ejecutables; este archivo solo las convenciones. La Routine la ejecuta un prompt corto: "Lee y ejecuta TAREA_SEMANAL.md", el domingo hacia mediodía (hora de Madrid). El entorno es efímero (no trae las dependencias preinstaladas), así que lo primero que hace `TAREA_SEMANAL.md` es `pip install -e .`.
+`TAREA_SEMANAL.md` holds the executable instructions; this file only holds the conventions. The Routine runs on a short prompt: "Read and execute TAREA_SEMANAL.md", Sunday around midday (Madrid time). The environment is ephemeral (dependencies aren't preinstalled), so the first thing `TAREA_SEMANAL.md` does is `pip install -e .`.
 
-1. `fetch_data.py` → `datos.json`. Si falla, detenerse.
-2. **Redacción, un módulo cada vez:** investigar con búsqueda web respetando `fuentes.yaml`, escribir cada módulo en `borrador.json` siguiendo `prompts/redactor.md` y `prompts/estilo.md`.
-3. **Unión:** titular, lo esencial, macro global, concepto de la semana, perspectiva de largo plazo. Eliminar duplicados entre módulos.
-4. **Verificación en frío:** releer `borrador.json` como revisor escéptico (`prompts/verificador.md`), reabriendo las fuentes. Resultado: `informe.json` con `cambios_verificador`.
-5. `validate.py`, máximo 2 intentos. Si persiste el error, detenerse sin publicar (queda en `log.json`).
-6. `render.py` → `informe.md` (público) + `transparencia.md` (interno).
-7. `publish.py` → borrador en Buttondown, asunto `"{NOMBRE}: {titular}"`.
-8. Commit de `data/<semana>/` a la rama `claude/archivo-semanal` — la única vez que Claude commitea y pushea directamente (sección 14).
-9. Resumen breve: módulos cubiertos, fuentes, avisos del validador, enlace al borrador.
+1. `fetch_data.py` → `datos.json`. Stop if it fails.
+2. **Writing, one module at a time:** research via web search respecting `fuentes.yaml`, write each module into `borrador.json` following `prompts/redactor.md` and `prompts/estilo.md`.
+3. **Merge:** headline, essentials, macro global, concept of the week, long-term perspective. Remove duplicates across modules.
+4. **Cold verification:** re-read `borrador.json` as a skeptical reviewer (`prompts/verificador.md`), reopening the sources. Result: `informe.json` with `cambios_verificador`.
+5. `validate.py`, 2 attempts max. If the error persists, stop without publishing (it stays in `log.json`).
+6. `render.py` → `informe.md` (public) + `transparencia.md` (internal).
+7. `publish.py` → draft in Buttondown, subject `"{NOMBRE}: {titular}"`.
+8. Commit `data/<week>/` to the `claude/archivo-semanal` branch — the only time Claude commits and pushes directly (section 14).
+9. Short summary: modules covered, sources, validator warnings, link to the draft.
 
-## 9. Prompts de criterio
+## 9. Judgment prompts
 
-El contenido completo vive en sus propios archivos — no se duplica aquí para que no se desincronicen:
+The full content lives in its own files — not duplicated here so they don't drift out of sync:
 
-- **`prompts/redactor.md`:** reglas de fuentes por nivel (ver `config/fuentes.yaml`), prioridades de selección, reglas de contenido (hechos vs. interpretación, nada de predicciones ni recomendaciones), cómo reutilizar `hilo_id`, y cómo escribir el titular.
-- **`prompts/verificador.md`:** la lista de comprobaciones del revisor escéptico — fuentes, cifras, independencia, interpretación vs. hecho, fechas, plagio.
-- **`prompts/estilo.md`:** tono, explicación de términos técnicos, prohibición de sensacionalismo, emojis de confianza (✅/⚠️/💬). Comparten este archivo redactor y verificador.
+- **`prompts/redactor.md`:** rules for sources by level (see `config/fuentes.yaml`), selection priorities, content rules (facts vs. interpretation, no predictions or recommendations), how to reuse `hilo_id`, and how to write the headline.
+- **`prompts/verificador.md`:** the skeptical reviewer's checklist — sources, figures, independence, interpretation vs. fact, dates, plagiarism.
+- **`prompts/estilo.md`:** tone, explaining technical terms, no sensationalism, confidence emojis (✅/⚠️/💬). Shared by the writer and the verifier.
 
-## 10. Validaciones deterministas (`validate.py`)
+## 10. Deterministic validations (`validate.py`)
 
-Errores que bloquean la publicación:
-- `informe.json` no cumple el esquema (incluye: `titular.noticia_id` inexistente, módulo `sin_novedades: false` sin noticias).
-- `confianza = confirmado` con menos de 2 fuentes de dominios distintos y ninguna catalogada como nivel 1 en `config/fuentes.yaml`. Un dominio no catalogado no cuenta como nivel 1 aunque la propia noticia lo declare así — tiene que ser un dominio *realmente* catalogado.
-- El nivel que declara una fuente no coincide con el nivel catalogado para su dominio en `config/fuentes.yaml` (la comprobación es por subdominio: `ecb.europa.eu` coincide con el catalogado `europa.eu`).
-- Un enlace que no responde tras reintentos. Si un medio bloquea bots o tiene paywall, es un **aviso**, no un error.
-- Una cifra con `ref_datos` que no coincide con `datos.json`.
-- Una fuente más antigua que `antiguedad_maxima_dias` (`config/fuentes.yaml`, 10 por defecto) **respecto al cierre del periodo** y sin `contexto_historico: true`. No exige que la fecha caiga dentro del periodo exacto: una noticia del lunes puede citar perfectamente un artículo de días antes.
-- Una noticia con palabras de `config/validacion.yaml` (sensacionalismo o recomendación).
+Errors that block publishing:
+- `informe.json` doesn't match the schema (includes: a `titular.noticia_id` that doesn't exist, a module with `sin_novedades: false` and no news).
+- `confianza = confirmado` with fewer than 2 sources from distinct domains and none catalogued as level 1 in `config/fuentes.yaml`. An uncatalogued domain doesn't count as level 1 even if the news item itself declares it so — it has to be a domain *actually* catalogued.
+- The level a source declares doesn't match the catalogued level for its domain in `config/fuentes.yaml` (checked by subdomain: `ecb.europa.eu` matches the catalogued `europa.eu`).
+- A link that doesn't respond after retries. If an outlet blocks bots or has a paywall, that's a **warning**, not an error.
+- A figure whose `ref_datos` doesn't match `datos.json`.
+- A source older than `antiguedad_maxima_dias` (`config/fuentes.yaml`, 10 by default) **relative to the period's end date**, without `contexto_historico: true`. It doesn't require the date to fall inside the exact period — a Monday story can perfectly well cite an article from a few days earlier.
+- A news item containing words from `config/validacion.yaml` (sensationalism or recommendation).
 
-Avisos (no bloquean): módulo que supera su límite de palabras; más del 50 % de las fuentes de un solo medio; módulo sin ninguna fuente de nivel 1 o 2; un dominio citado que no está catalogado en `config/fuentes.yaml` (puede ser una fuente nueva legítima — el aviso es para revisarla y, si corresponde, añadirla); `titular.texto` de más de 60 caracteres (se reutiliza tal cual como asunto del email y se trunca en varios clientes de correo); `concepto_semana.texto` de más de 120 palabras (sección 5: "4-5 líneas").
+Warnings (don't block): a module over its word limit; more than 50% of a story's sources from a single outlet; a module with no level-1 or level-2 source; a domain cited that isn't catalogued in `config/fuentes.yaml` (it could be a legitimate new source — the warning is there to review it and add it if appropriate); `titular.texto` longer than 60 characters (it's reused as-is as the email subject and gets truncated by several email clients); `concepto_semana.texto` longer than 120 words (section 5: "4-5 lines").
 
-`validate.py` escribe siempre sus hallazgos en `data/<semana>/log.json`, bajo la clave `"validacion"`, sin pisar el resto de contenido que el archivo ya tuviera. `fuentes_descartadas` y `cambios_verificador` no se duplican ahí: ya son campos de `informe.json`, y de ahí los lee `render.py` para `transparencia.md`.
+`validate.py` always writes its findings to `data/<week>/log.json`, under the `"validacion"` key, without overwriting whatever else the file already had. `fuentes_descartadas` and `cambios_verificador` aren't duplicated there — they're already fields of `informe.json`, and that's where `render.py` reads them from for `transparencia.md`.
 
-## 11. Renderizado del email (`render.py`)
+## 11. Email rendering (`render.py`)
 
-- Markdown limpio, legible en móvil.
-- Cabecera: logo (`config/general.yaml:logo_url`, subido una sola vez a Buttondown vía `POST /v1/images`; el logo ya lleva el nombre de la newsletter en la propia imagen, no se repite como texto aparte) + `titular` como encabezado principal + fecha del periodo en una línea pequeña debajo. El logo va con `<img width="...">` explícito (no la sintaxis Markdown de imagen) y a alta resolución: algunos clientes de correo lo estiraban más allá de su tamaño natural y se pixelaba (comprobado en un borrador real).
-- Índice de módulos sin enlaces de ancla (el soporte de `#ancla` dentro de un email es demasiado inconsistente entre clientes de correo).
-- Mercados: lista (no tabla) desde `datos.json`, con variación semanal calculada contra la semana ISO anterior (o `—` si no hay dato previo). Es una lista a propósito: una tabla Markdown se lee peor en móvil con 3 columnas, y el editor "fancy" de Buttondown pierde la cabecera de las tablas al tocarlas — una lista no tiene cabecera que perder. La variación va en verde o rojo (subida/bajada) con un `<span style="color:...">` suelto dentro del Markdown — Buttondown lo acepta sin pasar todo el email a HTML ("All HTML is valid Markdown", docs.buttondown.com/using-markdown).
-- Enlaces de fuente en línea tras cada afirmación, agrupados también en "Para profundizar".
-- **Paquete de contexto para IA**, en un bloque de código copiable: instrucción + prompt sugerido + periodo + datos duros con fecha/fuente + cada noticia en forma compacta (título, resumen propio, confianza, fuentes, `hilo_id`). Nunca texto copiado de artículos. Si supera `LIMITE_CONTEXTO_IA_CARACTERES`, se recorta con un aviso dentro del propio bloque.
-- Aviso legal fijo al final.
-- `transparencia.md` se escribe aparte (ver sección 5) con `renderizar_transparencia()`: fuentes por nivel, descartes por motivo, y los primeros 5 cambios del verificador (el resto, en `log.json`).
+- Clean Markdown, readable on mobile.
+- Header: logo (`config/general.yaml:logo_url`, uploaded once to Buttondown via `POST /v1/images`; the logo already carries the newsletter's name in the image itself, so it isn't repeated as separate text) + `titular` as the main heading + the period's date in a small line below. The logo uses an explicit `<img width="...">` (not Markdown image syntax) at high resolution: some email clients were stretching it past its natural size and it looked pixelated (confirmed on a real draft).
+- Module index with no anchor links (`#anchor` support inside an email is too inconsistent across email clients).
+- Markets: a list (not a table) from `datos.json`, with the weekly change computed against the previous ISO week (or `—` if there's no prior data). It's a list on purpose: a Markdown table reads worse on mobile with 3 columns, and Buttondown's "fancy" editor drops the table's header row when you touch it — a list has no header to lose. The change is shown in green or red (up/down) using a loose `<span style="color:...">` inside the Markdown — Buttondown accepts it without turning the whole email into HTML ("All HTML is valid Markdown", docs.buttondown.com/using-markdown).
+- Inline source links after each claim, also grouped under "To dig deeper".
+- **AI context package**, in a copyable code block: instructions + suggested prompt + period + hard data with date/source + each news item in compact form (title, own summary, confidence, sources, `hilo_id`). Never text copied from an article. If it exceeds `LIMITE_CONTEXTO_IA_CARACTERES`, it gets trimmed with a warning inside the block itself.
+- Fixed legal disclaimer at the end.
+- `transparencia.md` is written separately (see section 5) by `renderizar_transparencia()`: sources by level, discards by reason, and the first 5 verifier changes (the rest live in `log.json`).
 
-**Publicar en Buttondown (`publish.py`):** fuerza el modo Markdown explícitamente (`<!-- buttondown-editor-mode: plaintext -->`) en vez de confiar en la autodetección. Solo sabe crear borradores (`status: "draft"`) — nunca envía.
+**Publishing to Buttondown (`publish.py`):** forces Markdown mode explicitly (`<!-- buttondown-editor-mode: plaintext -->`) instead of trusting autodetection. It only knows how to create drafts (`status: "draft"`) — it never sends.
 
-> **Cuidado al revisar el borrador ya creado:** abrir el borrador en el editor "fancy" (visual) de Buttondown y hacer clic dentro del cuerpo reconvierte el Markdown a HTML (comprobado) — con el riesgo de que algo se reformatee sin que lo pidas. Revísalo en una vista de solo lectura si puedes; si necesitas editarlo, comprueba el resultado antes de enviarlo.
+> **Careful when reviewing an already-created draft:** opening the draft in Buttondown's "fancy" (visual) editor and clicking inside the body silently converts the Markdown to HTML (confirmed) — with the risk that something gets reformatted without you asking for it. Review it in a read-only view if you can; if you need to edit it, check the result before sending.
 
-## 12. Fuera de alcance por ahora (diseña sin cerrar estas puertas)
+## 12. Out of scope for now (design without closing these doors)
 
-- Curso de conceptos para principiantes (`concepto_semana.id` servirá para enlazarlo).
-- Páginas de hilos de historia y "ponerme al día" a partir del archivo (`hilo_id` lo prepara).
-- Módulos elegidos por cada lector.
-- Servidor MCP con el archivo.
-- Redacción por API (Plan B de la sección 2).
+- Beginners' course on concepts (`concepto_semana.id` will be used to link to it).
+- Story-thread and "catch me up" pages built from the archive (`hilo_id` prepares for this).
+- Reader-chosen modules.
+- An MCP server over the archive.
+- API-based writing (Plan B from section 2).
 
-## 13. Cómo seguimos trabajando
+## 13. How we keep working
 
-1. Para una funcionalidad o cambio nuevo: plan corto si hace falta decidir algo no obvio, implementación por partes pequeñas con tests, siguiendo las reglas de git de la sección 14.
-2. Antes de un cambio que afecte al flujo real, probarlo en local (`scripts/run_week.sh`, o los scripts por separado) antes de depender de que lo ejecute la Routine.
-3. Si una instrucción de este documento resulta imposible, contradictoria o claramente mejorable al implementarla: decirlo antes de implementarla, no en silencio.
+1. For a new feature or change: a short plan if something non-obvious needs deciding, implementation in small pieces with tests, following the git rules in section 14.
+2. Before a change that affects the real pipeline: test it locally (`scripts/run_week.sh`, or the scripts separately) before relying on the Routine to run it.
+3. If an instruction in this document turns out to be impossible, contradictory, or clearly improvable once implementing it: say so before implementing it, not silently.
 
-## 14. Git y commits
+## 14. Git and commits
 
-Poca experiencia con git. **El dueño del proyecto hace todos los commits, el push y los Pull Requests — Claude nunca ejecuta `git commit`, `git push` ni `gh pr create`.** El trabajo de Claude es generar el código ya listo para commitear y explicarlo.
+Little git experience. **The project owner does all commits, pushes and Pull Requests — Claude never runs `git commit`, `git push` or `gh pr create`.** Claude's job is to produce code that's ready to commit, and explain it.
 
-**División del trabajo por funcionalidad**
-- Unidades pequeñas, cada una equivalente a un commit. Una unidad = un cambio lógico; si hace falta un "y" para describirla, son dos.
-- Para cada unidad: indicar en qué **rama** trabajar (`main` siempre con tests en verde y sin código a medias), dejar los archivos listos, correr los tests, y antes del commit dar una explicación: **qué es** (archivos y qué hacen), **cómo funciona** (la lógica clave), **qué aporta** (a qué parte de este documento corresponde).
-- Después, proponer el mensaje de commit (Conventional Commits, tipo en inglés y descripción en español, imperativo, menos de 72 caracteres):
+**Splitting work by feature**
+- Small units, each equivalent to one commit. One unit = one logical change; if describing it needs an "and", it's two.
+- For each unit: say which **branch** to work on (`main` always with green tests and no half-done code), leave the files ready, run the tests, and before the commit give an explanation: **what it is** (files and what they do), **how it works** (the key logic), **what it's for** (which part of this document it maps to).
+- Then, propose the commit message (Conventional Commits, English type and Spanish description, imperative mood, under 72 characters):
   - `feat: añade descarga del IPC del INE`
   - `fix: corrige el redondeo del EUR/USD en la tabla`
   - `test: cubre los enlaces caídos en validate.py`
   - `docs: explica cómo crear la Routine`
-  - `refactor:`, `chore:` (dependencias, configuración)
-  - `data(2026-S41): informe semanal` para los commits de la tarea programada
-- Si el porqué no es obvio, sugerir también un cuerpo para el commit.
-- Al terminar una rama, avisar de que está lista para el Pull Request y proponer el resumen de qué cambia y cómo se ha probado.
-- **Excepción:** los commits de datos semanales de la Routine (nadie presente para commitear) — esa sesión sí commitea y pushea sola, a `claude/archivo-semanal` (sección 8).
+  - `refactor:`, `chore:` (dependencies, configuration)
+  - `data(2026-S41): informe semanal` for the scheduled task's own commits
+- If the "why" isn't obvious, also suggest a commit body.
+- When a branch is done, flag that it's ready for a Pull Request and propose a summary of what changes and how it was tested.
+- **Exception:** the Routine's weekly data commits (nobody around to commit them) — that session does commit and push on its own, to `claude/archivo-semanal` (section 8).
 
-**Seguridad**
-- Nunca generar ni dejar en el working tree claves ni `.env`. El `.gitignore` incluye `.env`, `__pycache__/`, entornos virtuales y archivos del sistema.
-- Antes de decir que algo está listo para commitear, revisar el contenido en busca de claves o datos personales.
-- Si alguna vez se sube una clave por error: avisar de inmediato, hay que revocarla.
+**Security**
+- Never generate or leave keys or `.env` in the working tree. `.gitignore` includes `.env`, `__pycache__/`, virtual environments and system files.
+- Before saying something is ready to commit, check the content for keys or personal data.
+- If a key ever gets pushed by mistake: flag it immediately, it needs to be revoked.
 
-**Nunca sin permiso explícito**
-- `git push --force`, `git reset --hard`, reescribir historial publicado o borrar ramas remotas. En general, ningún comando de git que modifique el repositorio salvo lectura (`status`, `diff`, `log`).
+**Never without explicit permission**
+- `git push --force`, `git reset --hard`, rewriting published history or deleting remote branches. In general, no git command that modifies the repository other than read-only ones (`status`, `diff`, `log`).
 
-## Configuración
+## Configuration
 
 - `{NOMBRE}`: **"The Macrochip"** (`config/general.yaml`).
-- Secrets: `BUTTONDOWN_API_KEY`, `FRED_API_KEY`. En el *environment* de la Routine (plan Pro/Max), como **API credentials** en vez de variables de entorno planas, para que no sean visibles dentro de la sesión.
+- Secrets: `BUTTONDOWN_API_KEY` as an **API credential**, `FRED_API_KEY` as a **plain environment variable** — see section 3 for why they're stored differently. Both live in the Routine's *environment* (Pro/Max plan).
