@@ -1,56 +1,54 @@
 # The Macrochip
 
-Newsletter semanal en español que explica el contexto económico y geopolítico global que mueve los mercados — para alguien sin formación económica, sin dar nunca consejos de inversión.
+A weekly newsletter in Spanish explaining the global economic and geopolitical context driving the markets — for someone with no background in economics, never giving investment advice.
 
-Cada domingo, una tarea programada de Claude Code descarga datos duros de fuentes oficiales, investiga y redacta el informe de la semana, lo verifica contra sus propias fuentes releyéndolas (no de memoria), lo valida con reglas deterministas y crea un **borrador** — nunca lo envía — en Buttondown. Un humano lo revisa y lo envía.
+Every Sunday, a Claude Code scheduled task downloads hard data from official sources, researches and writes the week's report, verifies it against its own sources by re-reading them (not from memory), validates it with deterministic rules, and creates a **draft** — never sends it — in Buttondown. A human reviews it and sends it.
 
-## El pipeline
+## The pipeline
 
 ```
 fetch_data.py → datos.json
       ↓
-[redacción + verificación — requieren criterio, las hace Claude]
+[writing + verification — require judgment, done by Claude]
       ↓
-validate.py → informe.json válido, o se detiene sin publicar
+validate.py → valid informe.json, or stops without publishing
       ↓
-render.py → informe.md (email) + transparencia.md (uso interno)
+render.py → informe.md (email) + transparencia.md (internal use)
       ↓
-publish.py → borrador en Buttondown
+publish.py → draft in Buttondown
 ```
 
-La frontera es deliberada: todo lo que se puede decidir con una regla fija es código Python con tests (descarga, validación, renderizado, publicación). Todo lo que requiere criterio real — qué es noticia, si una fuente dice lo que parece decir, si una cifra cuadra — lo hace Claude dentro de la tarea programada, siguiendo instrucciones versionadas en el repo, no código que intente simular juicio.
+The line is deliberate: anything that can be decided by a fixed rule is Python code with tests (downloading, validation, rendering, publishing). Anything that needs real judgment — what counts as news, whether a source says what it appears to say, whether a figure checks out — is done by Claude inside the scheduled task, following versioned instructions in the repo, not code trying to simulate judgment.
 
-Un único `informe.schema.json` es la fuente de verdad: el email, el paquete de contexto para IA que lleva cada número, y el resumen de transparencia salen todos del mismo JSON, nunca se redactan por separado.
+A single `informe.schema.json` is the source of truth: the email, the AI context package carrying every figure, and the transparency summary all come from the same JSON — never written separately.
 
-## Decisiones de ingeniería
+## Engineering decisions
 
-**Dónde no hay fuente oficial, se documenta el riesgo en vez de fingir que no existe.** BCE, Eurostat, INE y FRED cubren tipos de interés e inflación sin fricción. Para Nikkei 225, oro y los índices MSCI no hay ninguna API oficial gratuita; se usa el endpoint no oficial de Yahoo Finance, con el riesgo anotado explícitamente en vez de ignorado, y sin una fuente de respaldo especulativa para un fallo que no ha ocurrido — si pasa, el pipeline se detiene sin publicar, igual que cualquier otro fallo.
+**Where there's no official source, the risk gets documented instead of pretended away.** ECB, Eurostat, INE and FRED cover interest rates and inflation with no friction. For the Nikkei 225, gold and the MSCI indices there's no free official API; Yahoo Finance's unofficial endpoint is used instead, with the risk explicitly noted instead of ignored, and no speculative backup source for a failure that hasn't happened — if it does, the pipeline stops without publishing, same as any other failure.
 
-**La verificación es una segunda pasada real, no una formalidad.** Después de redactar, una sesión distinta relee cada fuente desde cero — sin fiarse de lo que recordaba la redacción — y compara cada cifra contra los datos duros antes de dar el informe por bueno.
+**Verification is a real second pass, not a formality.** After writing, a separate session re-reads every source from scratch — without trusting what the writing step remembered — and checks every figure against the hard data before signing off on the report.
 
-**La transparencia se genera, pero no se envía.** El informe registra qué fuentes se usaron, cuáles se descartaron y qué corrigió el verificador. Pero mostrarle esa lista de correcciones a cada suscriptor transmite "esto tiene fallos" en vez de fiabilidad, así que esa sección se escribe aparte, de uso interno, nunca en el email.
+**Transparency is generated, but not sent.** The report records which sources were used, which were discarded, and what the verifier corrected. But showing that list of corrections to every subscriber signals "this has flaws" rather than reliability, so that section is written separately, for internal use only, never in the email.
 
-**Tests unitarios + una ejecución real de punta a punta.** Además de tests unitarios (lógica de validación, parseo de datos, llamadas HTTP mockeadas), el pipeline se probó completo con datos reales y un borrador real creado en Buttondown — eso es lo que saca a la luz los fallos de integración que un test aislado no ve.
+**Unit tests + one real end-to-end run.** Besides unit tests (validation logic, data parsing, mocked HTTP calls), the pipeline was tested in full with real data and a real draft created in Buttondown — that's what surfaces the integration failures a single isolated test never sees.
 
-**`CLAUDE.md` se mantiene en español, no en inglés.** La redacción corre en una Routine de la suscripción Pro/Max (coste fijo, no facturado por token), así que el ahorro de tokens que da la tokenización BPE del inglés frente a otros idiomas no se traduce aquí en ahorro real — y sí tiene un coste: es el documento que más releo y mantengo. Si el flujo usara la API de Anthropic facturada por uso, sería la decisión correcta.
-
-## Arquitectura
+## Architecture
 
 ```
-config/        # Todo lo editable sin tocar código: módulos, fuentes, mercados, estilo
-prompts/        # Redactor, verificador, estilo — el criterio versionado
-schema/          # informe.schema.json, el contrato de datos central
-scripts/          # CLIs delgadas
-src/briefing/      # La lógica real, con tests
-data/AAAA-Sww/      # Una carpeta por semana: datos, borrador, informe, email, log
+config/        # Everything editable without touching code: modules, sources, markets, style
+prompts/        # Writer, verifier, style — the versioned judgment
+schema/          # informe.schema.json, the core data contract
+scripts/          # Thin CLIs
+src/briefing/      # The real logic, with tests
+data/AAAA-Sww/      # One folder per week: data, draft, report, email, log
 ```
 
-Las convenciones completas del proyecto — por qué cada decisión, qué se descartó y por qué — están en [`CLAUDE.md`](./CLAUDE.md).
+The project's full conventions — why each decision was made, what was ruled out and why — live in [`CLAUDE.md`](./CLAUDE.md).
 
 ## Stack
 
-Python 3.11+, dependencias mínimas (`requests`, `PyYAML`, `jsonschema`), sin frameworks, con tests unitarios.
+Python 3.11+, minimal dependencies (`requests`, `PyYAML`, `jsonschema`), no frameworks, with unit tests.
 
-## Aviso
+## Disclaimer
 
-Contenido informativo. No es asesoramiento financiero.
+Informational content. Not investment advice.
