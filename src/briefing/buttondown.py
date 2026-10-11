@@ -24,19 +24,29 @@ TIMEOUT_SEGUNDOS = 20
 _CABECERA_MODO_MARKDOWN = "<!-- buttondown-editor-mode: plaintext -->\n"
 
 
-class ButtondownApiKeyFaltante(RuntimeError):
-    """No se encontró la variable de entorno BUTTONDOWN_API_KEY."""
-
-
 class ErrorButtondown(RuntimeError):
     """La API de Buttondown respondió con un error."""
 
 
-def _clave_api() -> str:
+def _cabeceras() -> dict[str, str]:
+    """Cabecera de autenticación, solo si BUTTONDOWN_API_KEY es una variable
+    de entorno real legible.
+
+    En local (`.env`) sí lo es. En la Routine, `BUTTONDOWN_API_KEY` está
+    configurada como **API credential** del *environment* (sección 3 de
+    CLAUDE.md), no como variable de entorno: ahí el secreto no es legible
+    por este código a propósito — es el propio proxy de red de la Routine
+    quien añade la cabecera `Authorization` a las peticiones hacia
+    api.buttondown.com. Intentar leer la variable y fallar si no está
+    (como hacía antes esta función) rompía justo ese caso real: la
+    primera ejecución real de la Routine (2026-S41) dio 401 porque el
+    código mandaba una petición sin autenticar, en vez de dejar que el
+    proxy la completara. Si de verdad no hay credential configurada en
+    ningún sitio, Buttondown devuelve 401 igualmente y eso ya lo convierte
+    ErrorButtondown en un fallo explícito más abajo.
+    """
     clave = os.environ.get("BUTTONDOWN_API_KEY")
-    if not clave:
-        raise ButtondownApiKeyFaltante("Falta la variable de entorno BUTTONDOWN_API_KEY")
-    return clave
+    return {"Authorization": f"Token {clave}"} if clave else {}
 
 
 def crear_borrador(subject: str, body: str) -> dict:
@@ -52,7 +62,7 @@ def crear_borrador(subject: str, body: str) -> dict:
             "body": _CABECERA_MODO_MARKDOWN + body,
             "status": "draft",
         },
-        headers={"Authorization": f"Token {_clave_api()}"},
+        headers=_cabeceras(),
         timeout=TIMEOUT_SEGUNDOS,
     )
     if respuesta.status_code >= 400:
