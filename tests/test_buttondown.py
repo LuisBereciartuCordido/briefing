@@ -3,7 +3,7 @@ import json
 import pytest
 import responses
 
-from briefing.buttondown import ButtondownApiKeyFaltante, ErrorButtondown, crear_borrador
+from briefing.buttondown import ErrorButtondown, crear_borrador
 
 URL = "https://api.buttondown.com/v1/emails"
 
@@ -37,8 +37,19 @@ def test_error_de_la_api_lanza_error_explicito() -> None:
         crear_borrador("Asunto", "cuerpo")
 
 
-def test_sin_api_key_lanza_error_explicito(monkeypatch: pytest.MonkeyPatch) -> None:
+@responses.activate
+def test_sin_api_key_no_manda_cabecera_de_autenticacion(monkeypatch: pytest.MonkeyPatch) -> None:
+    # No es un error local: en la Routine, BUTTONDOWN_API_KEY es un API
+    # credential del *environment*, no una variable de entorno legible por
+    # este código — el proxy de red añade la cabecera, no el propio script
+    # (hallazgo real de la primera ejecución real, semana 2026-S41: el
+    # código fallaba aquí en vez de dejar que el proxy completara la
+    # petición). Si no hay credential en ningún sitio, Buttondown
+    # responde 401 y eso ya lo cubre el otro test con ErrorButtondown.
     monkeypatch.delenv("BUTTONDOWN_API_KEY", raising=False)
+    responses.add(responses.POST, URL, json={"id": "abc123"}, status=201)
 
-    with pytest.raises(ButtondownApiKeyFaltante):
-        crear_borrador("Asunto", "cuerpo")
+    crear_borrador("Asunto", "cuerpo")
+
+    peticion = responses.calls[0].request
+    assert "Authorization" not in peticion.headers
