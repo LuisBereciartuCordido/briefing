@@ -26,6 +26,10 @@ log = logging.getLogger(__name__)
 
 BASE_URL = "https://query1.finance.yahoo.com/v8/finance/chart"
 TIMEOUT_SEGUNDOS = 20
+# Excepción deliberada: a diferencia de BCE/Eurostat/INE/FRED (sección 6 de
+# CLAUDE.md, donde un User-Agent propio hace que algunos CDN cuelguen la
+# conexión), este endpoint de Yahoo sí necesita un User-Agent de navegador
+# — sin él, rechaza la petición por parecer tráfico no humano.
 CABECERAS = {"User-Agent": "Mozilla/5.0"}
 
 # id de mercados.yaml -> (ticker de Yahoo, unidad). nikkei225 es el índice
