@@ -1,33 +1,54 @@
 {
   "semana": "2026-S41",
-  "periodo": {"inicio": "2026-10-05", "fin": "2026-10-11"},
+  "periodo": {
+    "inicio": "2026-10-05",
+    "fin": "2026-10-11"
+  },
   "titular": {
-    "texto": "Los huthíes golpean una instalación de Aramco mientras la Fed y el BCE esperan a final de mes",
-    "noticia_id": "2026-S41-geopolitica-01"
+    "texto": "La inflación en España sube al 5 % por la energía",
+    "noticia_id": "2026-S41-europa-01"
   },
   "lo_esencial": [
-    "La Fed y el BCE mantienen los tipos; ambos deciden a finales de octubre.",
-    "El empleo de EE. UU. se enfría (solo 29.000 puestos en septiembre) y eso anima a los mercados emergentes.",
-    "China prepara más gasto público tras frenarse su crecimiento.",
-    "Nvidia, bajo escrutinio por chips de IA que llegan a China sin autorización.",
-    "Los huthíes dicen haber atacado una instalación de Aramco en Riad; Arabia Saudí lo niega."
+    "La inflación de la eurozona sube al 3,8 % en septiembre y la de España al 5,0 %, empujadas por la energía.",
+    "El Brent ronda los 100 $ mientras siguen los ataques a petroleros en Ormuz.",
+    "El bono a 10 años de EE. UU. toca máximos desde 2002 y la Fed prevé otra subida antes de fin de año.",
+    "Un susto con los ingresos de OpenAI hace caer a las tecnológicas, que rebotan después.",
+    "China libera 550.000 millones de yuanes para sus provincias y la India sube tipos."
   ],
   "macro_global": [
     {
       "id": "2026-S41-macro-01",
       "hilo_id": "bancos-centrales-tipos-2026",
-      "titulo": "La Fed y el BCE mantienen los tipos mientras esperan a finales de octubre",
-      "texto": "La Reserva Federal de EE. UU. (el banco central estadounidense) mantiene su tipo de interés en el rango del 3,75-4 %, el precio al que presta dinero a los bancos. El Banco Central Europeo (BCE), que subió sus tipos un cuarto de punto en septiembre, sigue con la facilidad de depósito en el 2,5 %. Ninguno de los dos se reúne esta semana: la Fed decide el 28 de octubre y el BCE el 29.",
-      "por_que_importa": "Mientras los tipos se mantienen altos, las hipotecas variables y los préstamos siguen caros tanto en EE. UU. como en la zona euro; el mercado ya empieza a descontar qué harán ambos bancos en sus próximas reuniones.",
+      "titulo": "Los bancos centrales siguen en modo «subir o aguantar» por la inflación",
+      "texto": "La Reserva Federal (el banco central de EE. UU.) subió tipos el 16 de septiembre hasta el 3,75-4 % y sus actas, publicadas el 7 de octubre, indican que ve venir otra subida antes de fin de año, sin fecha. El BCE (el banco central del euro) mantiene el 2,5 % en su facilidad de depósito y se reúne el 29 de octubre. El euro cerró la semana en 1,1206 dólares. ✅",
+      "por_que_importa": "Si los tipos siguen altos o suben, hipotecas variables y préstamos siguen caros a ambos lados del Atlántico.",
       "confianza": "confirmado",
       "relevancia_espana_ue": "alta",
       "fuentes": [
-        {"url": "https://fred.stlouisfed.org/series/FEDFUNDS", "medio": "FRED (Fed de San Luis)", "nivel": 1, "fecha": "2026-10-06", "idioma": "en"},
-        {"url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV", "medio": "BCE", "nivel": 1, "fecha": "2026-10-06", "idioma": "en"}
+        {
+          "url": "https://www.cnbc.com/2026/10/07/fed-officials-see-another-hike-coming-but-no-sign-as-to-when-minutes-show.html",
+          "medio": "CNBC",
+          "nivel": 2,
+          "fecha": "2026-10-07",
+          "idioma": "en"
+        },
+        {
+          "url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV",
+          "medio": "BCE",
+          "nivel": 1,
+          "fecha": "2026-10-09",
+          "idioma": "en"
+        }
       ],
       "cifras": [
-        {"valor": "3,75 %", "ref_datos": "fed_tipo"},
-        {"valor": "2,5 %", "ref_datos": "bce_tipo_deposito"}
+        {
+          "valor": "2,5 %",
+          "ref_datos": "bce_tipo_deposito"
+        },
+        {
+          "valor": "1,1206",
+          "ref_datos": "eur_usd"
+        }
       ]
     }
   ],
@@ -38,18 +59,67 @@
         {
           "id": "2026-S41-eeuu-01",
           "hilo_id": "empleo-eeuu-2026",
-          "titulo": "El empleo en EE. UU. se enfría más de lo esperado",
-          "texto": "EE. UU. creó solo 29.000 empleos en septiembre, muy por debajo de los 84.000 que esperaban los analistas, y la tasa de paro subió al 4,2 %. Julio y agosto también se revisaron a la baja.",
-          "por_que_importa": "Un mercado laboral más débil hace más probable que la Fed baje los tipos antes de lo previsto, lo que en teoría debería abaratar las hipotecas y los préstamos — aunque todavía no ha pasado.",
+          "titulo": "El empleo en EE. UU. se enfría: solo 29.000 puestos en septiembre",
+          "texto": "La economía estadounidense creó 29.000 empleos en septiembre, frente a los 84.000 que esperaban los analistas, y el paro subió al 4,2 %. Julio y agosto se revisaron a la baja (60.000 empleos menos entre ambos). ✅",
+          "por_que_importa": "Un empleo débil puede frenar subidas de tipos, aunque esta vez los bonos no lo celebraron (ver abajo).",
           "confianza": "confirmado",
           "relevancia_espana_ue": "media",
           "fuentes": [
-            {"url": "https://www.bls.gov/news.release/empsit.nr0.htm", "medio": "Bureau of Labor Statistics (BLS)", "nivel": 1, "fecha": "2026-10-02", "idioma": "en"},
-            {"url": "https://www.cnbc.com/2026/10/02/jobs-report-september-2026.html", "medio": "CNBC", "nivel": 2, "fecha": "2026-10-02", "idioma": "en"}
+            {
+              "url": "https://www.bls.gov/news.release/empsit.nr0.htm",
+              "medio": "Bureau of Labor Statistics",
+              "nivel": 1,
+              "fecha": "2026-10-02",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.cnbc.com/2026/10/02/jobs-report-september-2026.html",
+              "medio": "CNBC",
+              "nivel": 2,
+              "fecha": "2026-10-02",
+              "idioma": "en"
+            }
           ],
           "cifras": [
-            {"valor": "29.000", "ref_datos": null},
-            {"valor": "4,2 %", "ref_datos": null}
+            {
+              "valor": "29.000",
+              "ref_datos": null
+            },
+            {
+              "valor": "4,2 %",
+              "ref_datos": null
+            }
+          ]
+        },
+        {
+          "id": "2026-S41-eeuu-02",
+          "hilo_id": "bonos-eeuu-rentabilidad-2026",
+          "titulo": "El bono a 10 años de EE. UU. marca máximos desde 2002",
+          "texto": "El bono del Tesoro a 10 años rindió el 5,29 % tras tocar el lunes 5 su nivel más alto desde abril de 2002; el de 30 años, 5,66 %. Rendimiento alto significa que el Estado paga más por endeudarse. Cedió algo al enfriarse las apuestas por una subida de la Fed en octubre. ⚠️",
+          "por_que_importa": "Estos tipos marcan el coste de hipotecas y empresas en EE. UU. y arrastran a los demás mercados.",
+          "confianza": "una_fuente",
+          "relevancia_espana_ue": "media",
+          "fuentes": [
+            {
+              "url": "https://www.cnbc.com/2026/10/06/treasury-yields-fed-fomc-minutes.html",
+              "medio": "CNBC",
+              "nivel": 2,
+              "fecha": "2026-10-06",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.cnbc.com/2026/10/07/fed-officials-see-another-hike-coming-but-no-sign-as-to-when-minutes-show.html",
+              "medio": "CNBC",
+              "nivel": 2,
+              "fecha": "2026-10-07",
+              "idioma": "en"
+            }
+          ],
+          "cifras": [
+            {
+              "valor": "5,29 %",
+              "ref_datos": null
+            }
           ]
         }
       ]
@@ -59,18 +129,41 @@
       "noticias": [
         {
           "id": "2026-S41-europa-01",
-          "hilo_id": "aranceles-ue-eeuu-2026",
-          "titulo": "La UE sigue notando el frenazo de los aranceles de EE. UU.",
-          "texto": "El acuerdo marco entre la UE y EE. UU. fijó un techo del 15 % en los aranceles a la mayoría de las exportaciones europeas, pero el BCE calcula que el arancel efectivo real ronda el 12,1 %. Las exportaciones de bienes de la zona euro cayeron un 3,4 % en los tres meses hasta febrero, en parte por esto y por la competencia de China.",
-          "por_que_importa": "Los aranceles son como un peaje que pagan las empresas europeas para vender en EE. UU.; si venden menos o pagan más ese peaje, hay menos ingresos que puedan convertirse en inversión o empleo en Europa.",
+          "hilo_id": "inflacion-eurozona-2026",
+          "titulo": "La inflación del euro sube al 3,8 % y en España al 5,0 %",
+          "texto": "Según la estimación preliminar de Eurostat (la oficina estadística de la UE), la inflación de septiembre en la eurozona fue del 3,8 %, frente al 3,2 % de agosto. La energía, un 18,8 % más cara que hace un año, lo explica en gran parte. España (IPCA, la medida armonizada europea) llegó al 5,0 % y Alemania al 3,3 %. La cifra definitiva sale el 16 de octubre. ✅",
+          "por_que_importa": "Precios más altos restan poder de compra y presionan al BCE para no bajar tipos.",
           "confianza": "confirmado",
           "relevancia_espana_ue": "alta",
           "fuentes": [
-            {"url": "https://www.ecb.europa.eu/press/press_conference/monetary-policy-statement/shared/pdf/ecb.ds260910~fbf0ab9b8d.en.pdf", "medio": "BCE", "nivel": 1, "fecha": "2026-09-10", "idioma": "en", "contexto_historico": true}
+            {
+              "url": "https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-02102026-ap",
+              "medio": "Eurostat",
+              "nivel": 1,
+              "fecha": "2026-10-02",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.bloomberg.com/news/articles/2026-10-02/euro-zone-inflation-tops-estimates-to-hit-three-year-high",
+              "medio": "Bloomberg",
+              "nivel": 2,
+              "fecha": "2026-10-02",
+              "idioma": "en"
+            }
           ],
           "cifras": [
-            {"valor": "15 %", "ref_datos": null},
-            {"valor": "12,1 %", "ref_datos": null}
+            {
+              "valor": "3,8 %",
+              "ref_datos": null
+            },
+            {
+              "valor": "5,0 %",
+              "ref_datos": null
+            },
+            {
+              "valor": "18,8 %",
+              "ref_datos": null
+            }
           ]
         }
       ]
@@ -80,16 +173,34 @@
       "noticias": [
         {
           "id": "2026-S41-asia_china-01",
-          "hilo_id": "china-estimulo-fiscal-2026",
-          "titulo": "China prepara más estímulo fiscal tras frenarse el crecimiento",
-          "texto": "El ministro de Finanzas chino, Lan Foan, ha dicho que su departamento estudiará «políticas nuevas y muy específicas» para cumplir el objetivo de crecimiento de este año, después de que la economía se desacelerase. El Gobierno ya ha anunciado un primer paquete de estímulo.",
-          "por_que_importa": "China es la segunda economía del mundo; si de verdad gasta más para reactivarla, eso también tira de las exportaciones de otros países (incluida la UE) que le venden maquinaria, lujo o materias primas.",
+          "hilo_id": "china-estimulo-2026",
+          "titulo": "China libera 550.000 millones de yuanes para sus provincias",
+          "texto": "El 9 de octubre, el Ministerio de Finanzas permitió a las provincias usar 550.000 millones de yuanes (unos 82.000 millones de dólares) de cupos de deuda no gastados, parte para el gasto de los condados y parte para infraestructuras. Sigue a un paquete anunciado antes de las vacaciones y, para los analistas, empuja más que transforma. ⚠️",
+          "por_que_importa": "China pesa mucho en las ventas de exportadores europeos; su demanda interna afecta a empresas de la UE.",
           "confianza": "una_fuente",
           "relevancia_espana_ue": "media",
           "fuentes": [
-            {"url": "https://www.bloomberg.com/news/articles/2026-10-01/china-eyes-more-targeted-fiscal-support-after-growth-slowdown", "medio": "Bloomberg", "nivel": 2, "fecha": "2026-10-01", "idioma": "en"}
+            {
+              "url": "https://www.bloomberg.com/news/articles/2026-10-09/china-allows-provinces-to-draw-on-82-billion-to-shore-up-growth",
+              "medio": "Bloomberg",
+              "nivel": 2,
+              "fecha": "2026-10-09",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.bloomberg.com/news/newsletters/2026-10-08/china-s-stimulus-may-shore-up-gdp-while-reinforcing-imbalances",
+              "medio": "Bloomberg",
+              "nivel": 2,
+              "fecha": "2026-10-08",
+              "idioma": "en"
+            }
           ],
-          "cifras": []
+          "cifras": [
+            {
+              "valor": "550.000 millones de yuanes",
+              "ref_datos": null
+            }
+          ]
         }
       ]
     },
@@ -98,18 +209,37 @@
       "noticias": [
         {
           "id": "2026-S41-emergentes-01",
-          "hilo_id": "mercados-emergentes-rally-2026",
-          "titulo": "Los mercados emergentes suben tras el dato de empleo flojo en EE. UU.",
-          "texto": "El índice MSCI de bolsas emergentes subió hasta un 1,1 % el lunes, su mejor día en dos semanas, después de que el dato de empleo de EE. UU. redujese las apuestas a una Fed más dura y el petróleo siguiera cayendo. El ETF que replica ese índice (iShares Core MSCI Emerging Markets IMI, con el que seguimos este dato) cerró la semana en 83,35 $.",
-          "por_que_importa": "Cuando se espera que la Fed suba menos los tipos, el dinero vuelve a buscar rentabilidad en economías emergentes — lo contrario de lo que pasa cuando EE. UU. sube tipos agresivamente.",
-          "confianza": "una_fuente",
+          "hilo_id": "emergentes-tipos-2026",
+          "titulo": "India sube tipos por primera vez desde 2023",
+          "texto": "El banco central indio subió el 7 de octubre su tipo de referencia 0,25 puntos, al 5,50 %, por unanimidad, y pasó a una postura de «endurecimiento calibrado». Prevé una inflación del 5,2 % este ejercicio y un crecimiento del 7,1 %. ✅",
+          "por_que_importa": "Con el petróleo caro, los emergentes importadores tienen que elegir entre frenar precios o crecimiento.",
+          "confianza": "confirmado",
           "relevancia_espana_ue": "baja",
           "fuentes": [
-            {"url": "https://www.bloomberg.com/news/articles/2026-10-05/emerging-market-assets-climb-as-fed-hike-bets-cool-oil-drops", "medio": "Bloomberg", "nivel": 2, "fecha": "2026-10-05", "idioma": "en"}
+            {
+              "url": "https://www.rbi.org.in/Scripts/BS_PressReleaseDisplay.aspx?prid=63744",
+              "medio": "Reserve Bank of India",
+              "nivel": 1,
+              "fecha": "2026-10-07",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.cnbc.com/2026/10/07/india-rbi-interest-rates-inflation.html",
+              "medio": "CNBC",
+              "nivel": 2,
+              "fecha": "2026-10-07",
+              "idioma": "en"
+            }
           ],
           "cifras": [
-            {"valor": "1,1 %", "ref_datos": null},
-            {"valor": "83,35 $", "ref_datos": "msci_em"}
+            {
+              "valor": "5,50 %",
+              "ref_datos": null
+            },
+            {
+              "valor": "5,2 %",
+              "ref_datos": null
+            }
           ]
         }
       ]
@@ -119,18 +249,48 @@
       "noticias": [
         {
           "id": "2026-S41-energia-01",
-          "hilo_id": "petroleo-oro-precios-2026",
-          "titulo": "El petróleo Brent y el oro, en niveles altos",
-          "texto": "El Brent (petróleo de referencia) cerró en 113,96 $ por barril el 29 de septiembre, el último dato oficial disponible. El oro cotiza en torno a 4.195,80 $ la onza. Hay informaciones de prensa que hablan de una caída más fuerte del petróleo esta semana, pero no hemos podido confirmarlas con una fuente de nivel suficiente.",
-          "por_que_importa": "El precio del petróleo influye en lo que pagas por la gasolina y en la inflación general; el oro suele subir cuando hay más incertidumbre en los mercados.",
-          "confianza": "interpretacion",
+          "hilo_id": "petroleo-ormuz-2026",
+          "titulo": "El Brent ronda los 100 $ y el dato al contado dice otra cosa",
+          "texto": "Los futuros del Brent (el petróleo de referencia) cerraron en 100,20 $ el 7 de octubre, frente a unos 72 $ antes de la guerra. La serie al contado de FRED marca 125,44 $ el 6 de octubre. No hay una explicación oficial de la brecha; en una crisis de suministro el crudo físico puede cotizar muy por encima de los futuros. El oro cerró en 4.216,30 $. ⚠️",
+          "por_que_importa": "El petróleo se nota en la gasolina y en la inflación (ver Europa).",
+          "confianza": "una_fuente",
           "relevancia_espana_ue": "alta",
           "fuentes": [
-            {"url": "https://fred.stlouisfed.org/series/DCOILBRENTEU", "medio": "FRED (Fed de San Luis)", "nivel": 1, "fecha": "2026-09-29", "idioma": "en"}
+            {
+              "url": "https://www.aljazeera.com/news/2026/10/6/hormuz-ship-attacks-surge-are-increased-oil-exports-sustainable",
+              "medio": "Al Jazeera",
+              "nivel": 2,
+              "fecha": "2026-10-06",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.cnbc.com/2026/10/06/crude-oil-tanker-strait-hormuz-iran-attack.html",
+              "medio": "CNBC",
+              "nivel": 2,
+              "fecha": "2026-10-06",
+              "idioma": "en"
+            },
+            {
+              "url": "https://fred.stlouisfed.org/series/DCOILBRENTEU",
+              "medio": "FRED (Fed de San Luis)",
+              "nivel": 1,
+              "fecha": "2026-10-06",
+              "idioma": "en"
+            }
           ],
           "cifras": [
-            {"valor": "113,96 $", "ref_datos": "brent"},
-            {"valor": "4.195,80 $", "ref_datos": "oro"}
+            {
+              "valor": "125,44 $",
+              "ref_datos": "brent"
+            },
+            {
+              "valor": "4.216,30 $",
+              "ref_datos": "oro"
+            },
+            {
+              "valor": "100,20 $",
+              "ref_datos": null
+            }
           ]
         }
       ]
@@ -140,16 +300,38 @@
       "noticias": [
         {
           "id": "2026-S41-tecnologia_ia-01",
-          "hilo_id": "nvidia-exportaciones-chips-2026",
-          "titulo": "Nvidia, bajo la lupa por cómo sus chips de IA siguen llegando a China",
-          "texto": "Pese a los controles de exportación de EE. UU., los chips de inteligencia artificial de Nvidia siguen apareciendo en China por canales no autorizados, y varios responsables de EE. UU. piden explicaciones a la empresa sobre por qué no detectó antes las señales de alerta.",
-          "por_que_importa": "Estos chips son el motor de la carrera mundial por la inteligencia artificial; que se salten los controles de exportación es un asunto tanto de seguridad nacional como de competencia entre EE. UU. y China, con Nvidia como la empresa más valiosa del mundo en medio.",
-          "confianza": "una_fuente",
+          "hilo_id": "ia-openai-bolsa-2026",
+          "titulo": "Un susto con los ingresos de OpenAI sacude a las tecnológicas",
+          "texto": "El 8 de octubre, OpenAI dijo a inversores que sus ingresos anualizados eran de unos 50.000 millones de dólares, frente a los 68.000 que circulaban; parte de esa cifra incluía ingresos de socios. El Nasdaq 100 cayó un 1,4 % y los semiconductores un 3,4 %, y rebotaron al día siguiente. ✅",
+          "por_que_importa": "Muchas bolsas descansan en la apuesta por la IA, así que un dato de ingresos mueve el mercado entero.",
+          "confianza": "confirmado",
           "relevancia_espana_ue": "media",
           "fuentes": [
-            {"url": "https://www.bloomberg.com/news/features/2026-10-01/nvidia-faces-questions-over-china-ai-chip-smuggling-cases", "medio": "Bloomberg", "nivel": 2, "fecha": "2026-10-01", "idioma": "en"}
+            {
+              "url": "https://www.cnbc.com/2026/10/08/open-ai-revenue-nvidia-oracle-coreweave.html",
+              "medio": "CNBC",
+              "nivel": 2,
+              "fecha": "2026-10-08",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.bloomberg.com/news/articles/2026-10-08/us-stock-futures-slip-on-mounting-energy-shock-ai-bubble-fears",
+              "medio": "Bloomberg",
+              "nivel": 2,
+              "fecha": "2026-10-08",
+              "idioma": "en"
+            }
           ],
-          "cifras": []
+          "cifras": [
+            {
+              "valor": "1,4 %",
+              "ref_datos": null
+            },
+            {
+              "valor": "3,4 %",
+              "ref_datos": null
+            }
+          ]
         }
       ]
     },
@@ -158,14 +340,34 @@
       "noticias": [
         {
           "id": "2026-S41-geopolitica-01",
-          "hilo_id": "houthis-aramco-riad-2026",
-          "titulo": "Los huthíes afirman haber atacado una instalación de Aramco en Riad; Arabia Saudí lo niega",
-          "texto": "El grupo yemení huthí dijo haber golpeado una instalación petrolera de Aramco en Riad con misiles y drones, y se vio humo cerca de la zona. El portavoz de la coalición saudí calificó la afirmación de «engañosa» y no confirmó daños. Es el último episodio de una escalada entre Arabia Saudí y los huthíes que lleva meses subiendo de intensidad.",
-          "por_que_importa": "Arabia Saudí es uno de los mayores productores de petróleo del mundo; cualquier duda real sobre la seguridad de sus instalaciones suele notarse en el precio del barril, aunque esta vez las dos partes se contradicen sobre lo que pasó de verdad.",
-          "confianza": "una_fuente",
+          "hilo_id": "guerra-iran-ormuz-2026",
+          "titulo": "Siguen los ataques a petroleros en Ormuz y EE. UU. mantiene el bloqueo",
+          "texto": "Desde el 2 de octubre se ha reportado al menos un ataque diario a barcos en el estrecho de Ormuz o el golfo de Adén. El 10 la aviación de EE. UU. alcanzó un carguero en el golfo de Omán que había salido de un puerto iraní; la Guardia Revolucionaria dice haber golpeado un gasero por usar una «ruta ilegal». Antes de la guerra pasaba por ahí un 20 % del crudo y gas mundial. ✅",
+          "por_que_importa": "Un estrecho inseguro encarece seguros y transporte, y eso acaba en los precios.",
+          "confianza": "confirmado",
           "relevancia_espana_ue": "alta",
           "fuentes": [
-            {"url": "https://www.aljazeera.com/news/2026/10/4/houthis-claim-strike-on-saudi-energy-facility-as-yemen-fighting-intensifies", "medio": "Al Jazeera", "nivel": 2, "fecha": "2026-10-04", "idioma": "en"}
+            {
+              "url": "https://www.aljazeera.com/news/2026/10/6/hormuz-ship-attacks-surge-are-increased-oil-exports-sustainable",
+              "medio": "Al Jazeera",
+              "nivel": 2,
+              "fecha": "2026-10-06",
+              "idioma": "en"
+            },
+            {
+              "url": "https://aljazeera.com/news/2026/10/11/us-forces-disable-ship-attempting-to-run-iran-blockade-in-gulf-of-oman",
+              "medio": "Al Jazeera",
+              "nivel": 2,
+              "fecha": "2026-10-11",
+              "idioma": "en"
+            },
+            {
+              "url": "https://www.cnbc.com/2026/10/06/crude-oil-tanker-strait-hormuz-iran-attack.html",
+              "medio": "CNBC",
+              "nivel": 2,
+              "fecha": "2026-10-06",
+              "idioma": "en"
+            }
           ],
           "cifras": []
         }
@@ -173,23 +375,64 @@
     }
   },
   "concepto_semana": {
-    "id": "tipos-de-interes",
-    "titulo": "¿Qué son los tipos de interés y por qué hay varios (Fed, BCE)?",
-    "texto": "Un tipo de interés es el precio del dinero: lo que cuesta pedir prestado, o lo que te pagan por ahorrar. Cada banco central fija el suyo para su zona económica — la Fed en EE. UU., el BCE en la zona euro — y lo sube o baja según quiera frenar la inflación o animar la economía. Por eso ves dos cifras distintas (3,75-4 % en EE. UU., 2,5 % en la zona euro): no es un error, son decisiones separadas de dos bancos centrales distintos. Cuando suben, las hipotecas y los préstamos se encarecen; cuando bajan, se abaratan."
+    "id": "rentabilidad-bono",
+    "titulo": "Qué es la rentabilidad de un bono",
+    "texto": "Un bono es un préstamo que haces a un Estado o empresa a cambio de intereses. Su rentabilidad (o «yield») es lo que ganarías al año si lo compraras hoy. Cuando el bono baja de precio, su rentabilidad sube. Por eso se habla de que el bono a 10 años de EE. UU. «sube» al 5,29 %: los inversores exigen más por prestar al Estado. Como esa cifra sirve de referencia para hipotecas y créditos, suele contagiarse al resto de la economía."
   },
   "perspectiva_largo_plazo": {
     "estructural": [
-      "La fricción comercial entre la UE y EE. UU. (aranceles) y la competencia china llevan ya más de un año pesando sobre las exportaciones europeas — no es ruido de una semana.",
-      "El pulso entre EE. UU. y China por el control de los chips de IA es una tendencia de varios años, no un episodio aislado."
+      "La guerra con Irán y la inseguridad en Ormuz llevan meses encareciendo la energía, y eso alimenta la inflación y los tipos altos.",
+      "La inversión en IA es un ciclo de años, con dudas recurrentes sobre su financiación."
     ],
     "ruido": [
-      "El dato puntual de empleo de un solo mes en EE. UU. puede revisarse (de hecho julio y agosto ya se revisaron a la baja) — una sola cifra no define una tendencia.",
-      "El episodio concreto del ataque a Aramco, con versiones contradictorias, es un evento puntual dentro de una escalada ya conocida."
+      "La caída y el rebote de las tecnológicas por un titular sobre OpenAI duraron dos días.",
+      "Un solo dato de empleo mensual se revisa con frecuencia."
     ]
   },
   "fuentes_descartadas": [
-    {"url": "https://martyau79.substack.com/p/05oct2026-geopolitical-intelligence", "motivo": "nivel 3"},
-    {"url": "https://tradingeconomics.com/commodity/crude-oil", "motivo": "contradictoria"}
+    {
+      "url": "https://www.tmgm.com/es/analysis/market-news/article/ecb-expected-to-pause-in-october-before-hiking-rates-in-december-reuters-poll-202610081239",
+      "motivo": "otro"
+    },
+    {
+      "url": "https://report.az/en/amp/finance/euro-zone-october-pmi-at-near-3-year-low",
+      "motivo": "antigua"
+    },
+    {
+      "url": "https://tradingeconomics.com/commodity/crude-oil",
+      "motivo": "contradictoria"
+    }
   ],
-  "cambios_verificador": []
+  "cambios_verificador": [
+    {
+      "noticia_id": "2026-S41-europa-01",
+      "cambio": "Se usa la estimación de Eurostat y no el ipca_eurozona de datos.json (fechado en 2025-12, desfasado).",
+      "motivo": "El dato de datos.json no era el de septiembre de 2026."
+    },
+    {
+      "noticia_id": "2026-S41-energia-01",
+      "cambio": "Se baja a una_fuente y se explicita la brecha entre el Brent de FRED (125,44 $) y los futuros (~100 $).",
+      "motivo": "Dos cifras contradictorias; sin explicación oficial."
+    },
+    {
+      "noticia_id": "2026-S41-eeuu-02",
+      "cambio": "Confianza una_fuente: todas las fuentes son de CNBC.",
+      "motivo": "Un solo medio. CNBC devolvió 403 al reabrirla; se contrastó con resúmenes de búsqueda."
+    },
+    {
+      "noticia_id": "2026-S41-asia_china-01",
+      "cambio": "Confianza una_fuente: las dos fuentes son de Bloomberg.",
+      "motivo": "Un solo medio; Bloomberg devolvió 403 al reabrirla."
+    },
+    {
+      "noticia_id": "2026-S41-tecnologia_ia-01",
+      "cambio": "Fijada la cifra de ingresos en ~50.000 M$ y precisado que la de 68.000 M$ incluía ingresos de socios.",
+      "motivo": "Las fuentes difieren en el tamaño del hueco (18.000 o 20.000 M$); CNBC y Bloomberg no se pudieron reabrir (403)."
+    },
+    {
+      "noticia_id": "2026-S41-geopolitica-01",
+      "cambio": "Retirada la noticia previa del ataque huthí a Aramco, del 3 de octubre (semana anterior) y con versiones contradictorias.",
+      "motivo": "Fuera del periodo y de menor impacto que Ormuz."
+    }
+  ]
 }

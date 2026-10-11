@@ -1,24 +1,24 @@
 {
   "bce_tipo_deposito": {
-    "fecha": "2026-10-06",
+    "fecha": "2026-10-11",
     "fuente": "BCE",
     "unidad": "% anual",
     "url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV",
     "valor": 2.5
   },
   "brent": {
-    "fecha": "2026-09-29",
+    "fecha": "2026-10-06",
     "fuente": "FRED",
     "unidad": "USD/barril",
     "url": "https://fred.stlouisfed.org/series/DCOILBRENTEU",
-    "valor": 113.96
+    "valor": 125.44
   },
   "eur_usd": {
-    "fecha": "2026-10-06",
+    "fecha": "2026-10-09",
     "fuente": "BCE",
     "unidad": "USD por EUR",
     "url": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A",
-    "valor": 1.1269
+    "valor": 1.1206
   },
   "fed_tipo": {
     "fecha": "2026-09-01",
@@ -49,45 +49,45 @@
     "valor": 2.0
   },
   "msci_em": {
-    "fecha": "2026-10-06",
+    "fecha": "2026-10-09",
     "fuente": "Yahoo Finance (no oficial)",
     "unidad": "USD",
     "url": "https://finance.yahoo.com/quote/IEMG",
-    "valor": 83.34500122070312
+    "valor": 81.4000015258789
   },
   "msci_europe": {
-    "fecha": "2026-10-06",
+    "fecha": "2026-10-09",
     "fuente": "Yahoo Finance (no oficial)",
     "unidad": "USD",
     "url": "https://finance.yahoo.com/quote/IEUR",
-    "valor": 73.59500122070312
+    "valor": 73.0999984741211
   },
   "msci_world": {
-    "fecha": "2026-10-06",
+    "fecha": "2026-10-09",
     "fuente": "Yahoo Finance (no oficial)",
     "unidad": "USD",
     "url": "https://finance.yahoo.com/quote/URTH",
-    "valor": 209.92999267578125
+    "valor": 209.13999938964844
   },
   "nikkei225": {
-    "fecha": "2026-10-05",
+    "fecha": "2026-10-09",
     "fuente": "Yahoo Finance (no oficial)",
     "unidad": "puntos",
     "url": "https://finance.yahoo.com/quote/^N225",
-    "valor": 69946.859375
+    "valor": 69030.921875
   },
   "oro": {
-    "fecha": "2026-10-06",
+    "fecha": "2026-10-09",
     "fuente": "Yahoo Finance (no oficial)",
     "unidad": "USD/onza",
     "url": "https://finance.yahoo.com/quote/GC=F",
-    "valor": 4195.7998046875
+    "valor": 4216.2998046875
   },
   "sp500": {
-    "fecha": "2026-10-05",
+    "fecha": "2026-10-09",
     "fuente": "FRED",
     "unidad": "puntos",
     "url": "https://fred.stlouisfed.org/series/SP500",
-    "valor": 7773.95
+    "valor": 7811.54
   }
 }
