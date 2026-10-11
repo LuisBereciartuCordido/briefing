@@ -51,15 +51,6 @@ Las convenciones completas del proyecto — por qué cada decisión, qué se des
 
 Python 3.11+, dependencias mínimas (`requests`, `PyYAML`, `jsonschema`), sin frameworks, con tests unitarios.
 
-## Ejecutarlo
-
-```bash
-pip install -e ".[dev]"
-# .env con FRED_API_KEY y BUTTONDOWN_API_KEY
-scripts/run_week.sh 2026-S41 --sin-publicar   # con un informe.json ya preparado
-pytest -q
-```
-
 ## Aviso
 
 Contenido informativo. No es asesoramiento financiero.
